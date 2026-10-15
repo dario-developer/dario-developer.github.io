@@ -63,6 +63,7 @@ p{
 .pf-board{
     background-color: var(--color-board);
     border: var(--border-size) var(--border-style) var(--border-color);
+    border-radius: 1rem;
 }
 
 /* ============================================================

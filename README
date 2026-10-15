@@ -1,0 +1,41 @@
+1. ALINEACION HORIZONTAL (Eje Principal -> justify-content-*)
+   Se aplica en contenedores flex o en la clase .row:
+   - justify-content-start   : Agrupados al inicio (izquierda)
+   - justify-content-end     : Agrupados al final (derecha)
+   - justify-content-center  : Centrados horizontalmente
+   - justify-content-between : Espacio máximo entre elementos (extremos)
+   - justify-content-around  : Espacio repartido alrededor de cada elemento
+   - justify-content-evenly  : Espacio perfectamente uniforme entre elementos
+
+2. ALINEACION VERTICAL (Eje Transversal -> align-items-*)
+   Se aplica en contenedores flex o en la clase .row:
+   - align-items-start       : Alineados arriba
+   - align-items-end         : Alineados abajo
+   - align-items-center      : Centrados verticalmente
+   - align-items-baseline    : Alineados según la línea base del texto
+   - align-items-stretch     : Estirados para ocupar toda la altura (defecto)
+
+3. ORIENTACION Y DIRECCION DE FILAS (.row & flex-direction)
+   Las filas de Bootstrap (.row) actúan como contenedores flex:
+   - flex-column             : Apila los elementos en vertical (modo filas)
+   - flex-row                : Coloca los elementos en horizontal (defecto)
+   - flex-md-row             : Cambia a horizontal a partir de pantallas "md"
+
+   4. TAMAÑOS Y BREAKPOINTS RESPONSIVOS (Sufijos)
+   Para aplicar cambios según el ancho de pantalla (enfoque mobile-first):
+   - (sin sufijo) : Desde 0px en adelante (móviles pequeños)
+   - sm           : >= 576px  (móviles grandes)
+   - md           : >= 768px  (tablets)
+   - lg           : >= 992px  (portátiles / laptops)
+   - xl           : >= 1200px (escritorios estándar)
+   - xxl          : >= 1400px (pantallas ultra-anchas)
+
+   5. TAMAÑOS DE SUFIJOS
+   0: 0rem
+   1: 0.25rem
+   2: 0.375rem
+   3: 0.25rem
+   4: 1rem
+   5: 2rem
+   pill: 50rem
+   circle: 50%
