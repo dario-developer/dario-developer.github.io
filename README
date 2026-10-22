@@ -39,3 +39,8 @@
    5: 2rem
    pill: 50rem
    circle: 50%
+
+   6. ESPACIADO
+   margin: separa por fuera a un elemento de los que le rodean
+   padding: crea espacio entre el contenido de un elemento y sus bordes por dentro
+   gap: crea espacio entre los hijos de un contenedor
