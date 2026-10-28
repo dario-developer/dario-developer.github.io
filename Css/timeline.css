@@ -1,0 +1,28 @@
+:root{
+    --color-bg: rgb(5, 22, 78);
+    --color-elements: rgb(241, 241, 241);
+}
+
+html, body {
+    overflow: hidden;
+    background-color: var(--color-bg);
+}
+/* Contenedor apaisado que permite el scroll horizontal */
+.timeline-container {
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.main-line{
+    height: 5rem;
+    width: 5000px;
+}
+
+.line{
+    border: 10px, solid, var(--color-elements);
+}
+
+.line p{
+    color: var(--color-elements);
+    flex: 1 1 0;
+}
