@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="vh-100" lang="es">
+<html lang="es">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,7 +13,7 @@
         <link rel="stylesheet" href="../Css/timeline.css">
     </head>
 
-    <body id="timeline-body" class="vh-100">
+    <body id="timeline-body">
         <header class="d-flex justify-content-center navbar">
             <p class="pf-heading py-2 px-4">Linea de tiempo</p>
             <a class="pf-back-btn" href="../index.html">
@@ -21,16 +21,67 @@
             </a>
         </header>
 
-        <div class="row align-items-center vh-100 timeline-container ">
-            <div class="row">
-                <div class="row mx-3 main-line line rounded-5 justify-content-evenly align-items-center">
-                    <p class="text-center">2019</p>
-                    <p class="text-center">2019</p>
+        <!-- Contenedor principal -->
+        <main class="container-fluid timeline-container vh-100 d-flex flex-column justify-content-center py-5">
+
+            <div class="timeline-wrapper d-flex flex-column gap-4">
+                <div class="timeline-inner-container d-flex flex-row align-items-center gap-4">
+                    <div class="line rounded-5 d-flex justify-content-evenly align-items-center flex-nowrap" style="width: 400px; height: 100px;">
+                        <p class="text-center m-0">Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam tempore commodi unde! Eos, saepe labore soluta, nulla veritatis nam molestiae suscipit eius ducimus, debitis natus. Fugiat, nulla. Dignissimos, fugit sequi.</p>
+                    </div>
+                    <div class="line rounded-5 d-flex justify-content-evenly align-items-center flex-nowrap" style="width: 400px; height: 100px;">
+                        <p class="text-center m-0">Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam tempore commodi unde! Eos, saepe labore soluta, nulla veritatis nam molestiae suscipit eius ducimus, debitis natus. Fugiat, nulla. Dignissimos, fugit sequi.</p>
+                    </div>
                 </div>
-                <img src="../media/img/logoipsum-407.png" alt="" class="img-fluid w-25">
+                <!-- Linea secundaria -->
+                <div class="timeline-inner-container d-flex flex-row align-items-center gap-4">
+                    <!-- UDIT -->
+                    <div class="timeline-box line rounded-5 d-flex justify-content-evenly align-items-center flex-nowrap" style="width: 400px;">
+                        <p class="text-center m-0">Estudios en UDIT</p>
+                    </div>
+                    <div class="timeline-box line rounded-5 d-flex justify-content-evenly align-items-center flex-nowrap" style="width: 400px;">
+                        <p class="text-center m-0">Estudios en UDIT</p>
+                    </div>
+                </div>
+                
+                <!-- Linea principal-->
+                <div class="timeline-inner-container d-flex flex-row align-items-center gap-4">
+                    <!-- 2019 -->
+                    <div class="timeline-box main-line rounded-5 d-flex justify-content-evenly align-items-center flex-nowrap">
+                        <p class="text-center m-0">2019</p>
+                        <p class="text-center m-0">2019</p>
+                    </div>
+
+                    <img src="../media/img/logoipsum-407.png" class="timeline-img img-fluid" alt="">
+
+                    <!-- 2020 -->
+                    <div class="timeline-box main-line rounded-5 d-flex justify-content-evenly align-items-center flex-nowrap">
+                        <p class="text-center m-0">2020</p>
+                        <p class="text-center m-0">2020</p>
+                    </div>
+                </div>
+
+                
+                <!-- Linea secundaria -->
+                <div class="timeline-inner-container d-flex flex-row align-items-center gap-4">
+                    <!-- UDIT -->
+                    <div class="timeline-box line rounded-5 d-flex justify-content-evenly align-items-center flex-nowrap" style="width: 400px;">
+                        <p class="text-center m-0">Estudios en UDIT</p>
+                    </div>
+                    <div class="timeline-box line rounded-5 d-flex justify-content-evenly align-items-center flex-nowrap" style="width: 400px;">
+                        <p class="text-center m-0">Estudios en UDIT</p>
+                    </div>
+                </div>
+
+                <div class="timeline-inner-container d-flex flex-row align-items-center gap-4">
+                    <div class="line rounded-5 d-flex justify-content-evenly align-items-center flex-nowrap" style="width: 400px; height: 100px;">
+                        <p class="text-center m-0">Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam tempore commodi unde! Eos, saepe labore soluta, nulla veritatis nam molestiae suscipit eius ducimus, debitis natus. Fugiat, nulla. Dignissimos, fugit sequi.</p>
+                    </div>
+                    <div class="line rounded-5 d-flex justify-content-evenly align-items-center flex-nowrap" style="width: 400px; height: 100px;">
+                        <p class="text-center m-0">Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam tempore commodi unde! Eos, saepe labore soluta, nulla veritatis nam molestiae suscipit eius ducimus, debitis natus. Fugiat, nulla. Dignissimos, fugit sequi.</p>
+                    </div>
+                </div>
             </div>
-        </div>
-
+        </main>
     </body>
-
 </html>

@@ -1,28 +1,64 @@
-:root{
+:root {
     --color-bg: rgb(5, 22, 78);
     --color-elements: rgb(241, 241, 241);
 }
 
 html, body {
-    overflow: hidden;
     background-color: var(--color-bg);
+    min-height: 100vh;
 }
-/* Contenedor apaisado que permite el scroll horizontal */
+
+/* El contenedor scroll lateral */
 .timeline-container {
     overflow-x: auto;
     overflow-y: hidden;
+    width: 100%;
 }
 
-.main-line{
-    height: 5rem;
-    width: 5000px;
+/* Wrapper */
+.timeline-wrapper {
+    min-width: 1800px;
+    width: 100%;
+    margin: auto 0;
 }
 
-.line{
-    border: 10px, solid, var(--color-elements);
+
+.timeline-inner-container {
+    width: 100%;
+}
+
+/* Estilos lineas */
+.timeline-box {
+    flex-shrink: 0; 
+    border-color: var(--color-elements);
+    border-style: solid;
+}
+
+.timeline-box p {
+    color: var(--color-elements);
+    flex: 1 1 0;
 }
 
 .line p{
     color: var(--color-elements);
-    flex: 1 1 0;
+}
+
+/* Linea principal */
+.main-line {
+    height: 5rem;
+    border-width: 10px;
+    width: 100vw;
+}
+
+/* Lineas secunarias */
+.line {
+    height: 3rem;
+    border-width: 7.5px;
+}
+
+/* Control img */
+.timeline-img {
+    height: 5rem;
+    width: auto;
+    flex-shrink: 0;
 }
