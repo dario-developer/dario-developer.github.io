@@ -8,7 +8,7 @@ html, body {
     min-height: 100vh;
 }
 
-/* El contenedor scroll lateral */
+/* El contenedor scroll lateral (Escritorio) */
 .timeline-container {
     overflow-x: auto;
     overflow-y: hidden;
@@ -22,24 +22,18 @@ html, body {
     margin: auto 0;
 }
 
-
 .timeline-inner-container {
     width: 100%;
 }
 
-/* Estilos lineas */
+/* Estilos líneas */
 .timeline-box {
     flex-shrink: 0; 
     border-color: var(--color-elements);
     border-style: solid;
 }
 
-.timeline-box p {
-    color: var(--color-elements);
-    flex: 1 1 0;
-}
-
-.line p{
+.timeline-box p, .line p {
     color: var(--color-elements);
 }
 
@@ -47,10 +41,10 @@ html, body {
 .main-line {
     height: 5rem;
     border-width: 10px;
-    width: 100vw;
+    width: 1200px;
 }
 
-/* Lineas secunarias */
+/* Lineas secundarias */
 .line {
     height: 3rem;
     border-width: 7.5px;
@@ -61,4 +55,12 @@ html, body {
     height: 5rem;
     width: auto;
     flex-shrink: 0;
+}
+
+
+/* ==========================================
+   ADAPTACIÓN MÓVIL (Hasta 576px)
+   ========================================== */
+@media (max-width: 576px) {
+    
 }
