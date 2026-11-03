@@ -17,6 +17,8 @@ html, body {
 
 /* Wrapper */
 .timeline-wrapper {
+    display: flex;
+    flex-direction: column;
     min-width: 1800px;
     width: 100%;
     margin: auto 0;
@@ -35,6 +37,7 @@ html, body {
 
 .timeline-box p, .line p {
     color: var(--color-elements);
+    gap: 0px;
 }
 
 /* Linea principal */
@@ -57,10 +60,25 @@ html, body {
     flex-shrink: 0;
 }
 
+#movil{
+    display: none;
+}
 
-/* ==========================================
-   ADAPTACIÓN MÓVIL (Hasta 576px)
-   ========================================== */
+
+/* MOVIL */
 @media (max-width: 576px) {
-    
+    #pc{
+        display: none;
+    }
+
+    #movil{
+        display: flex;
+        flex-direction: row;
+        color:var(--color-elements);
+        padding-top: 40px;
+    }
+
+    .main-line-mv{
+        border-width: 6px;
+    }
 }
