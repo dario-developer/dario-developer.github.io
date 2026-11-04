@@ -14,7 +14,7 @@
     </head>
 
     <body id="timeline-body">
-        <header class="d-flex justify-content-center navbar my-5">
+        <header class="d-flex justify-content-center navbar">
             <p class="pf-heading py-2 px-4">Linea de tiempo</p>
             <a class="pf-back-btn" href="../index.html">
                 <img src="https://img.icons8.com/?size=100&id=26194&format=png&color=000000" alt="">
@@ -22,7 +22,7 @@
         </header>
 
         <!-- Contenedor principal -->
-        <main class="container-fluid timeline-container vh-100 d-flex flex-column justify-content-center py-5">
+        <main class="container-fluid timeline-container vw-100 h-100 d-flex flex-column justify-content-center py-5">
 
             <div id="pc" class="timeline-wrapper gap-4">
                 <div class="timeline-inner-container d-flex flex-row align-items-center gap-4">
@@ -73,6 +73,7 @@
                     </div>
                 </div>
 
+                <!-- 2 columnas a la vez (máximo) -->
                 <div class="timeline-inner-container d-flex flex-row align-items-center gap-4">
                     <div class="line rounded-5 d-flex justify-content-evenly align-items-center flex-nowrap" style="width: 400px; height: 100px;">
                         <p class="text-center m-0">Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam tempore commodi unde! Eos, saepe labore soluta, nulla veritatis nam molestiae suscipit eius ducimus, debitis natus. Fugiat, nulla. Dignissimos, fugit sequi.</p>
@@ -83,29 +84,59 @@
                 </div>
             </div>
 
-            <div id="movil" class="justify-content-center gap-4">
-                <!-- Columna central -->
-                <div class="col-3 d-flex flex-column align-items-center">
+            <div id="movil" class="justify-content-center gap-3">
+                <!-- Texto -->
+                <div class="d-flex flex-column col-4 gap-4">
+                    <p style="height: 200px;">
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor repellat unde suscipit, natus pariatur provident dolore quod iste voluptate illum, nobis fuga, sint excepturi consectetur? Nemo atque nam doloremque consequatur.
+                    </p>
+                    <p style="height: 200px;">
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor repellat unde suscipit, natus pariatur provident dolore quod iste voluptate illum, nobis fuga, sint excepturi consectetur? Nemo atque nam doloremque consequatur.
+                    </p>
+                </div>
+
+                <!-- Columna lateral -->
+                <div class="col d-flex flex-column gap-4 col-5">
+                    <div class="text-center row align-items-center justify-content-center timeline-box gx-1 rounded-5" style="height: 200px;">
+                        <p>Estudios en UDIT</p>
+                    </div>
+
+                    <div class="text-center row align-items-center justify-content-evenly timeline-box gx-1 rounded-5" style="height: 200px;">
+                        <p>Estudios en UDIT</p>
+                    </div>
+                    <div class="text-center d-flex justify-content-around rounded-5 col-12 dual-time" style="height: 200px;">
+                        <p class="text-center row align-items-center justify-content-center timeline-box gx-1 rounded-5 col">
+                            estudios en UDIT
+                        </p>
+                        <p class="text-center row align-items-center justify-content-center timeline-box gx-1 rounded-5 col">
+                            Prácticas en el CSIC
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Años -->
+                <div class="col d-flex flex-column align-items-center gap-4">
                     <div class="text-center row align-items-center timeline-box main-line-mv rounded-5" style="height: 900px;">
                         <p>2019</p>
                         <p>2019</p>
                         <p>2019</p>
                     </div>
+                    
+                    <img src="../media/img/logoipsum-407.png" class="img-fluid">
+
+                    <div class="text-center row align-items-center timeline-box main-line-mv rounded-5" style="height: 900px;">
+                        <p>2020</p>
+                        <p>2020</p>
+                        <p>2020</p>
+                        
+                    </div>
+
                     <img src="../media/img/logoipsum-407.png" class="img-fluid">
                 </div>
 
-                
-                <!-- Columna lateral -->
-                <div class="col-3 text-center row align-items-center timeline-box gx-0 rounded-5" style="height: 200px;">
-                    <p>Estudios en UDIT</p>
-                    <p>Estudios en UDIT</p>
-                    <p>Estudios en UDIT</p>
-                </div>
+               
 
-                <!-- Texto -->
-                <div class="col-5 text-center">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor repellat unde suscipit, natus pariatur provident dolore quod iste voluptate illum, nobis fuga, sint excepturi consectetur? Nemo atque nam doloremque consequatur.
-                </div>
+                
 
             </div>
         </main>

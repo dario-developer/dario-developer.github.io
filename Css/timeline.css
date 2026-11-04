@@ -26,6 +26,7 @@ html, body {
 
 .timeline-inner-container {
     width: 100%;
+    max-width: 100%;
 }
 
 /* Estilos líneas */
@@ -64,6 +65,10 @@ html, body {
     display: none;
 }
 
+#movil p{
+    overflow: auto;
+}
+
 
 /* MOVIL */
 @media (max-width: 576px) {
@@ -80,5 +85,9 @@ html, body {
 
     .main-line-mv{
         border-width: 6px;
+    }
+
+    .timeline-box{
+        font-size: clamp(0.5rem, 0.85rem, 2rem);
     }
 }
