@@ -1,45 +1,117 @@
-/* ============================================================
-   Variables
-   ============================================================ */
+/* ╔══════════════════════════════════════════════════════════════════╗
+   ║                         ÍNDICE DE AJUSTES                        ║
+   ║  Todo lo que hay que tocar está en el bloque :root de abajo.     ║
+   ║  Para cada pieza de arte hay SIEMPRE las mismas variables:       ║
+   ║     -img      → ruta de la imagen                                ║
+   ║     -slice    → cuánto de la IMAGEN es "borde" (en %, ver abajo) ║
+   ║     -borde    → tamaño en PANTALLA de esas esquinas/lados        ║
+   ║     -padding  → espacio entre el borde y el contenido            ║
+   ║  1. FONDO TOTAL   (nubes, se repite en vertical)                 ║
+   ║  2. TABLÓN        (tablones de madera, se repite en vertical)    ║
+   ║  3. FOLIO         (hoja de papel que enmarca imagen + texto)     ║
+   ║  4. TITULAR       (tablón grande de la cabecera)                 ║
+   ║  5. PLACA         (rótulo oscuro dentro del titular)             ║
+   ╚══════════════════════════════════════════════════════════════════╝ */
+
 :root{
-    /* TEXTO */
+
+    /* ══════════════════════════════════════════════════════════════
+       1. FONDO TOTAL · nubes
+       Una imagen que empalma consigo misma arriba/abajo y se repite
+       hacia abajo todo lo que haga falta.
+       ══════════════════════════════════════════════════════════════ */
+    --fondo-img: url("/media/img/Deco/Cielo.png");  /* ← IMAGEN */
+    --fondo-tamano: 100% auto;     /* ancho alto. "100% auto" = ocupa todo el ancho sin deformarse */
+    --fondo-posicion: top center;
+    --fondo-respaldo: rgb(176, 178, 220);  /* color de cielo mientras carga / si falta la imagen */
+
+    /* ══════════════════════════════════════════════════════════════
+       2. TABLÓN · tablones de madera
+       Necesita DOS imágenes del mismo tile (ver documentación).
+       ══════════════════════════════════════════════════════════════ */
+    --tablon-img-bordes: url("../media/img/tablones-tile.png");   /* ← IMAGEN 1: tile completo */
+    --tablon-img-centro: url("../media/img/tablones-centro.png"); /* ← IMAGEN 2: tile sin bordes laterales */
+    --tablon-alto: 778;            /* ← alto en px de la imagen (solo el número) */
+    --tablon-lado: 16;             /* ← ancho en px del borde lateral (solo el número) */
+    --tablon-repeticiones: 1;      /* nº mínimo de tiles (1 tile = 5 tablones) */
+    --tablon-padding: 40px 32px;   /* margen interior: arriba/abajo  izquierda/derecha */
+
+    /* ══════════════════════════════════════════════════════════════
+       3. FOLIO · hoja de papel que enmarca cada imagen+texto
+       ══════════════════════════════════════════════════════════════ */
+    --folio-img: url("/media/img/Deco/Hojas/hojaentera.png");        /* ← IMAGEN */
+
+    /* --folio-slice: qué parte de la IMAGEN cuenta como "borde" (contorno irregular + margen transparente + chincheta).
+       Se da en % para que funcione con cualquier resolución de imagen (1x, 2x, 4x...).
+       Orden: ARRIBA  DERECHA  ABAJO  IZQUIERDA.
+       Cómo ajustarlo: mide en la imagen la distancia (px) desde su borde hasta donde TERMINA el contorno
+       irregular (arriba, hasta debajo de la chincheta) y divídela entre el alto/ancho de la imagen.
+       Si ves el contorno del papel TAPADO por la foto → AUMENTA el %. */
+    --folio-slice: 14% 8% 8% 8%;
+
+    /* --folio-borde: cuánto papel se ve (en pantalla) entre el contorno y la imagen. Mismo orden. Aquí SÍ vale px/rem.
+       Si el papel queda pegado a la foto → AUMENTA. Si sobra mucho papel → REDUCE. */
+    --folio-borde: 3.5rem 1.5rem 1.5rem 1.5rem;
+    --folio-padding: 0.5rem 1.5rem 1rem 1.5rem;  /* espacio extra hasta el contenido (arriba derecha abajo izquierda) */
+    --folio-repeat: stretch;       /* stretch = estira los lados | round = los repite (si llevan dibujo repetible) */
+    --folio-respaldo: transparent; /* color provisional mientras no hay arte (ej: khaki). Con arte: transparent */
+
+    /* Chincheta / clip (OPCIONAL): imagen suelta encima del folio, centrada arriba.
+       Si la chincheta YA está dibujada dentro de folio.png, déjalo en none. */
+    --folio-chincheta-img: none;   /* ej: url("../media/img/folio-chincheta.png") */
+    --folio-chincheta-ancho: 2rem;
+    --folio-chincheta-y: -0.5rem;  /* posición vertical (negativo = sobresale por arriba) */
+
+    /* ══════════════════════════════════════════════════════════════
+       4. TITULAR · tablón grande de la cabecera
+       ══════════════════════════════════════════════════════════════ */
+    --titular-img: url("../media/img/titular.png");    /* ← IMAGEN */
+    --titular-slice: 25% 4%;       /* ← % de la IMAGEN que es borde: ARRIBA/ABAJO  IZQUIERDA/DERECHA (o 4 valores) */
+    --titular-borde: 1.5rem 2rem;  /* ← borde en pantalla: ARRIBA/ABAJO  IZQUIERDA/DERECHA */
+    --titular-padding: 0.5rem;     /* espacio entre el borde y la placa */
+    --titular-repeat: stretch;
+    --titular-respaldo: transparent;
+
+    /* ══════════════════════════════════════════════════════════════
+       5. PLACA · rótulo oscuro dentro del titular (lleva el texto)
+       ══════════════════════════════════════════════════════════════ */
+    --placa-img: url("../media/img/placa.png");        /* ← IMAGEN */
+    --placa-slice: 25% 4%;         /* ← % de la IMAGEN que es borde: ARRIBA/ABAJO  IZQUIERDA/DERECHA (o 4 valores) */
+    --placa-borde: 1rem 1.5rem;    /* ← borde en pantalla: ARRIBA/ABAJO  IZQUIERDA/DERECHA */
+    --placa-padding: 1rem 1.5rem;  /* espacio entre el borde y el texto */
+    --placa-repeat: stretch;
+    --placa-respaldo: transparent;
+    --placa-color-texto: white;
+    --fuente-titular: inherit;     /* ej: "Patrick Hand", cursive */
+
+    /* ══════════════════════════════════════════════════════════════
+       OTROS (no tienen que ver con el arte)
+       ══════════════════════════════════════════════════════════════ */
     --font-size-lg: larger;
     --lineas-texto: 3em;
-
-    /* COLORES */
-    --color-bg: rgb(200, 247, 255);
-    --color-heading: blanchedalmond;
-    --color-board: burlywood;
-    --color-hover: rgb(180, 218, 240);
     --color-text: black;
-
-    /* BORDES */
-    /* General */
     --radius-sm: 0.25rem;
-    /* tablero */
-    --border-color: rgb(99, 52, 14);
-    --border-size: 0.33rem;
-    --border-style: solid;
-
-    /* PADDING */
-    --padding-card: 0.5rem;
-
-    /* GAP */
     --gap-col: 3rem;
     --gap-col-mobile: 7rem;
-
-    /* TRANSICIONES */
-    --transition-card: transform 0.3s ease, background-color 0.3s ease;
+    --transition-card: transform 0.3s ease;
     --transition-fade: opacity 0.25s ease;
+}
+
+/* ============================================================
+   1. FONDO TOTAL (nubes)
+   ⚠ NO TOCAR. Se ajusta con las variables --fondo-*
+   ============================================================ */
+html{
+    background-color: var(--fondo-respaldo);
+    background-image: var(--fondo-img);
+    background-size: var(--fondo-tamano);
+    background-position: var(--fondo-posicion);
+    background-repeat: repeat-y;
 }
 
 /* ============================================================
    Base
    ============================================================ */
-body{
-    background-color: var(--color-bg);
-}
-
 a{
     color: var(--color-text);
     text-decoration: none;
@@ -58,16 +130,85 @@ h1{
 }
 
 /* ============================================================
-   Theme
+   MOTOR 9-SLICE (folio, titular, placa)
+   ⚠ NO TOCAR. Las tres piezas comparten este bloque; cada una
+   solo se diferencia en sus variables (más abajo).
    ============================================================ */
-.pf-heading{
-    background-color: var(--color-heading);
+.pf-card,
+.pf-titular,
+.pf-placa{
+    box-sizing: border-box;
+    border-style: solid;
+    border-color: transparent;               /* si falta la imagen no sale un borde negro */
+    border-width: var(--s9-borde);
+    border-image-source: var(--s9-img);
+    border-image-slice: var(--s9-slice) fill;
+    border-image-repeat: var(--s9-repeat);
+    padding: var(--s9-padding);
+    background-color: var(--s9-respaldo);
+    background-clip: padding-box;
 }
 
+/* Cada clase "enchufa" sus variables al motor */
+.pf-card{
+    --s9-img: var(--folio-img);
+    --s9-slice: var(--folio-slice);
+    --s9-borde: var(--folio-borde);
+    --s9-padding: var(--folio-padding);
+    --s9-repeat: var(--folio-repeat);
+    --s9-respaldo: var(--folio-respaldo);
+}
+
+.pf-titular{
+    --s9-img: var(--titular-img);
+    --s9-slice: var(--titular-slice);
+    --s9-borde: var(--titular-borde);
+    --s9-padding: var(--titular-padding);
+    --s9-repeat: var(--titular-repeat);
+    --s9-respaldo: var(--titular-respaldo);
+}
+
+.pf-placa{
+    --s9-img: var(--placa-img);
+    --s9-slice: var(--placa-slice);
+    --s9-borde: var(--placa-borde);
+    --s9-padding: var(--placa-padding);
+    --s9-repeat: var(--placa-repeat);
+    --s9-respaldo: var(--placa-respaldo);
+    color: var(--placa-color-texto);
+    font-family: var(--fuente-titular);
+}
+
+/* ============================================================
+   2. TABLÓN DE MADERA (.pf-board)
+   ⚠ NO TOCAR. Todo se ajusta desde las variables --tablon-*
+   ============================================================ */
 .pf-board{
-    background-color: var(--color-board);
-    border: var(--border-size) var(--border-style) var(--border-color);
-    border-radius: 1rem;
+    box-sizing: border-box;
+    min-height: calc(var(--tablon-alto) * var(--tablon-repeticiones) * 1px);
+    padding: var(--tablon-padding);
+
+    /* Centra las hojas en vertical dentro del tablón */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    /* CAPA 1 (encima): bordes laterales irregulares */
+    border-style: solid;
+    border-color: transparent;
+    border-width: 0 calc(var(--tablon-lado) * 1px);
+    border-image-source: var(--tablon-img-bordes);
+    border-image-slice: 0 var(--tablon-lado);
+    border-image-repeat: stretch round;
+
+    /* CAPA 2 (debajo): relleno de madera y líneas divisorias */
+    background-image: var(--tablon-img-centro);
+    background-size: 100% calc(var(--tablon-alto) * 1px);
+    background-repeat: no-repeat round;
+    background-clip: padding-box;
+
+    /* ✖ NO añadir aquí: background-color, background (abreviado),
+         border-radius, overflow:hidden ni border-width arriba/abajo. */
 }
 
 /* ============================================================
@@ -87,24 +228,40 @@ h1{
     gap: var(--gap-col);
 }
 
+/* ============================================================
+   3. FOLIO (.pf-card) · contenido y chincheta
+   (el marco de papel lo pone el motor 9-slice de arriba)
+   ============================================================ */
 .pf-card{
+    position: relative;
     display: flex;
     flex-direction: column;
-    height: 25%;
+    height: auto;              /* ⚠ el folio SIEMPRE mide lo que mide su contenido (imagen + texto). No poner % ni px aquí */
     align-items: center;
-    padding: var(--padding-card);
-    background-color: var(--color-bg);
-    border-radius: var(--radius-sm);
     will-change: transform;
     transition: var(--transition-card);
 }
 
+.pf-card::before{                            /* chincheta (opcional) */
+    content: "";
+    position: absolute;
+    top: var(--folio-chincheta-y);
+    left: 50%;
+    width: var(--folio-chincheta-ancho);
+    aspect-ratio: 1;
+    transform: translateX(-50%);
+    background: var(--folio-chincheta-img) center / contain no-repeat;
+    pointer-events: none;
+}
+
 .pf-card img{
+    display: block;
     width: 100%;
+    height: auto;
+    flex-shrink: 0;            /* la imagen nunca se encoge dentro del folio */
 }
 
 .pf-card:hover{
-    background-color: var(--color-hover);
     transform: rotate(2deg) scale(1.05);
 }
 

@@ -12,41 +12,58 @@
         <link rel="stylesheet" href="Css/styles.css">
     </head>
     <body class="container h-md-100">
-        <!-- Header. Es la zona de arriba con mi logo, nombre etc -->
-        <header class="pf-header pf-heading mt-2 p-4 rounded-4">
-            <p>Darío Navarro</p>
+        <!-- TITULAR. Cabecera con nombre, logo, etc.
+             .pf-titular = tablón grande de fondo  |  .pf-placa = rótulo oscuro con el texto.
+             Solo hay que poner las clases; las imágenes se cambian en el css (variables --titular-* y --placa-*). -->
+        <header class="pf-titular mt-2">
+            <div class="pf-placa pf-header">
+                <p>Darío Navarro</p>
 
-            <!-- PONER LOGO BUENO -->
-            <img class="rounded-5 w-auto" src="https://picsum.photos/100" alt="Mi logo">
+                <!-- PONER LOGO BUENO -->
+                <img class="rounded-5 w-auto" src="https://picsum.photos/100" alt="Mi logo">
 
-            <p class="text-end">Game designer</p>
+                <p class="text-end">Game designer</p>
+            </div>
         </header>
 
-        <!-- Cuerpo del tablón de anuncios -->
-        <div class="pf-board my-4 p-3 gy-3 gy-lg-0 gx-3 row justify-content-evenly h-50 align-items-center">
-            <div class="col-12 col-sm-6 col-lg-3">
-                <a class="pf-card" href="HTML/sobremi.html">
-                    <img class="img-fluid" src="https://picsum.photos/400" alt="Imagen sobre mí">
-                    <p class="pf-card-text">Sobre mi</p>
-                </a>
-            </div>
-            <div class="col-12 col-sm-6 col-lg-3">
-                <a class="pf-card" href="HTML/proyectos.html">
-                    <img class="img-fluid" src="https://picsum.photos/400" alt="Imagen sobre mí">
-                    <p class="pf-card-text">Proyectos</p>
-                </a>
-            </div>
-            <div class="col-12 col-sm-6 col-lg-3">
-                <a class="pf-card" href="HTML/lineatiempo.html">
-                    <img class="img-fluid" src="https://picsum.photos/400" alt="Imagen sobre mí">
-                    <p class="pf-card-text">Linea de tiempo</p>
-                </a>
-            </div>
-            <div class="col-12 col-sm-6 col-lg-3">
-                <a class="pf-card" href="HTML/sobremi.html">
-                    <img class="img-fluid" src="https://picsum.photos/400" alt="Imagen sobre mí">
-                    <p class="pf-card-text">CV</p>
-                </a>
+        <!-- TABLÓN de anuncios.
+             .pf-board = fondo de madera (variables --tablon-* del css).
+             El .row de dentro contiene los FOLIOS (.pf-card) pegados encima (variables --folio-* del css). -->
+        <div class="pf-board my-4">
+            <div class="row gy-3 gy-lg-0 gx-3 justify-content-evenly align-items-center">
+
+                <!-- FOLIO 1 -->
+                <div class="col-12 col-sm-6 col-lg-3 ">
+                    <a class="pf-card" href="HTML/sobremi.html">
+                        <img class="img-fluid" src="https://picsum.photos/400" alt="Imagen sobre mí">
+                        <p class="pf-card-text">Sobre mi</p>
+                    </a>
+                </div>
+
+                <!-- FOLIO 2 -->
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <a class="pf-card" href="HTML/proyectos.html">
+                        <img class="img-fluid" src="https://picsum.photos/400" alt="Imagen proyectos">
+                        <p class="pf-card-text">Proyectos</p>
+                    </a>
+                </div>
+
+                <!-- FOLIO 3 -->
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <a class="pf-card" href="HTML/lineatiempo.html">
+                        <img class="img-fluid" src="https://picsum.photos/400" alt="Imagen línea de tiempo">
+                        <p class="pf-card-text">Linea de tiempo</p>
+                    </a>
+                </div>
+
+                <!-- FOLIO 4 -->
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <a class="pf-card" href="HTML/sobremi.html">
+                        <img class="img-fluid" src="https://picsum.photos/400" alt="Imagen CV">
+                        <p class="pf-card-text">CV</p>
+                    </a>
+                </div>
+
             </div>
         </div>
 
