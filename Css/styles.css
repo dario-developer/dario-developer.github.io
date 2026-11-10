@@ -120,6 +120,7 @@
 
 *{
     font-family:'Zilla Slab';
+    font-size: large;
 }
 
 /* ============================================================
@@ -152,6 +153,11 @@ p{
 
 h1{
     margin-bottom: 0px;
+}
+
+.text-link{
+    text-decoration: underline;
+    font-weight: bold;
 }
 
 /* ============================================================
