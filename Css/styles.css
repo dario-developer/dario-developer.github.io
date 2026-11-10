@@ -8,7 +8,7 @@
    ║     -padding  → espacio entre el borde y el contenido            ║
    ║  1. FONDO TOTAL   (nubes, se repite en vertical)                 ║
    ║  2. TABLÓN        (tablones de madera, se repite en vertical)    ║
-   ║  3. FOLIO         (hoja de papel que enmarca imagen + texto)     ║
+   ║  3. FOLIO         (hoja de papel: pieza arriba/medio/abajo)      ║
    ║  4. TITULAR       (tablón grande de la cabecera)                 ║
    ║  5. PLACA         (rótulo oscuro dentro del titular)             ║
    ╚══════════════════════════════════════════════════════════════════╝ */
@@ -20,7 +20,7 @@
        Una imagen que empalma consigo misma arriba/abajo y se repite
        hacia abajo todo lo que haga falta.
        ══════════════════════════════════════════════════════════════ */
-    --fondo-img: url("/media/img/Deco/Cielo.png");  /* ← IMAGEN */
+    --fondo-img: url("../media/img/Deco/Cielo.png");  /* ← IMAGEN */
     --fondo-tamano: 100% auto;     /* ancho alto. "100% auto" = ocupa todo el ancho sin deformarse */
     --fondo-posicion: top center;
     --fondo-respaldo: rgb(176, 178, 220);  /* color de cielo mientras carga / si falta la imagen */
@@ -38,23 +38,36 @@
 
     /* ══════════════════════════════════════════════════════════════
        3. FOLIO · hoja de papel que enmarca cada imagen+texto
+       Se construye por SECCIONES (como los tablones):
+            ┌───────────────┐
+            │  ARRIBA       │  borde roto de arriba (+ chincheta si la lleva)
+            ├───────────────┤
+            │  MEDIO        │  laterales del papel (se estira en vertical)
+            ├───────────────┤
+            │  ABAJO        │  borde roto de abajo
+            └───────────────┘
+       Las 3 imágenes deben tener EL MISMO ANCHO (ver documentación / script dividir_folio.py).
+       Todo se escala con el ancho del folio, por eso no se puede deformar ni desbordar.
        ══════════════════════════════════════════════════════════════ */
-    --folio-img: url("/media/img/Deco/Hojas/hojaentera.png");        /* ← IMAGEN */
+    --folio-img-arriba: url("/media/img/Deco/Hojas/hojalado.png");   /* ← IMAGEN 1: parte de arriba */
+    --folio-img-medio:  url("/media/img/Deco/Hojas/hojacentro.png");    /* ← IMAGEN 2: parte central */
+    --folio-img-abajo:  url("/media/img/Deco/Hojas/hojaesquina2.png");    /* ← IMAGEN 3: parte de abajo */
 
-    /* --folio-slice: qué parte de la IMAGEN cuenta como "borde" (contorno irregular + margen transparente + chincheta).
-       Se da en % para que funcione con cualquier resolución de imagen (1x, 2x, 4x...).
-       Orden: ARRIBA  DERECHA  ABAJO  IZQUIERDA.
-       Cómo ajustarlo: mide en la imagen la distancia (px) desde su borde hasta donde TERMINA el contorno
-       irregular (arriba, hasta debajo de la chincheta) y divídela entre el alto/ancho de la imagen.
-       Si ves el contorno del papel TAPADO por la foto → AUMENTA el %. */
-    --folio-slice: 14% 8% 8% 8%;
+    /* Medidas en px de las imágenes de arriba y abajo (solo números, SIN "px").
+       Las imprime el script dividir_folio.py. Sirven para calcular la proporción. */
+    --folio-arriba-ancho: 1016;    /* ← ancho de folio-arriba.png */
+    --folio-arriba-alto:  170;     /* ← alto  de folio-arriba.png */
+    --folio-abajo-ancho:  1016;    /* ← ancho de folio-abajo.png */
+    --folio-abajo-alto:   100;     /* ← alto  de folio-abajo.png */
 
-    /* --folio-borde: cuánto papel se ve (en pantalla) entre el contorno y la imagen. Mismo orden. Aquí SÍ vale px/rem.
-       Si el papel queda pegado a la foto → AUMENTA. Si sobra mucho papel → REDUCE. */
-    --folio-borde: 3.5rem 1.5rem 1.5rem 1.5rem;
-    --folio-padding: 0.5rem 1.5rem 1rem 1.5rem;  /* espacio extra hasta el contenido (arriba derecha abajo izquierda) */
-    --folio-repeat: stretch;       /* stretch = estira los lados | round = los repite (si llevan dibujo repetible) */
-    --folio-respaldo: transparent; /* color provisional mientras no hay arte (ej: khaki). Con arte: transparent */
+    /* Margen del contenido (imagen + texto) respecto al papel */
+    --folio-margen-x: 10%;         /* laterales. En % del ancho del folio (si sube, la imagen se hace más pequeña) */
+    --folio-margen-arriba: 0.25rem;/* espacio entre la parte de arriba del papel y la imagen */
+    --folio-margen-abajo: 0.5rem;  /* espacio entre el texto y la parte de abajo del papel */
+
+    --folio-medio-tamano: 100% 100%; /* "100% 100%" = el medio se estira. No tocar salvo que el artista lo pida */
+    --folio-texto-lineas: 2;       /* líneas de texto que se RESERVAN bajo la imagen (así todos los folios miden igual aunque un título ocupe 1 o 2 líneas) */
+    --folio-respaldo: transparent; /* color provisional del papel mientras no hay arte (ej: khaki). Con arte: transparent */
 
     /* Chincheta / clip (OPCIONAL): imagen suelta encima del folio, centrada arriba.
        Si la chincheta YA está dibujada dentro de folio.png, déjalo en none. */
@@ -88,13 +101,25 @@
        OTROS (no tienen que ver con el arte)
        ══════════════════════════════════════════════════════════════ */
     --font-size-lg: larger;
-    --lineas-texto: 3em;
     --color-text: black;
     --radius-sm: 0.25rem;
     --gap-col: 3rem;
     --gap-col-mobile: 7rem;
     --transition-card: transform 0.3s ease;
     --transition-fade: opacity 0.25s ease;
+}
+
+/* FUENTES */
+@font-face {
+    font-family: 'Zilla Slab';
+    src: url(https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@700&display=swap);
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+*{
+    font-family:'Zilla Slab';
 }
 
 /* ============================================================
@@ -130,11 +155,10 @@ h1{
 }
 
 /* ============================================================
-   MOTOR 9-SLICE (folio, titular, placa)
+   MOTOR 9-SLICE (titular y placa)
    ⚠ NO TOCAR. Las tres piezas comparten este bloque; cada una
    solo se diferencia en sus variables (más abajo).
    ============================================================ */
-.pf-card,
 .pf-titular,
 .pf-placa{
     box-sizing: border-box;
@@ -150,15 +174,6 @@ h1{
 }
 
 /* Cada clase "enchufa" sus variables al motor */
-.pf-card{
-    --s9-img: var(--folio-img);
-    --s9-slice: var(--folio-slice);
-    --s9-borde: var(--folio-borde);
-    --s9-padding: var(--folio-padding);
-    --s9-repeat: var(--folio-repeat);
-    --s9-respaldo: var(--folio-respaldo);
-}
-
 .pf-titular{
     --s9-img: var(--titular-img);
     --s9-slice: var(--titular-slice);
@@ -229,20 +244,64 @@ h1{
 }
 
 /* ============================================================
-   3. FOLIO (.pf-card) · contenido y chincheta
-   (el marco de papel lo pone el motor 9-slice de arriba)
+   3. FOLIO (.pf-card) · por secciones: arriba / medio / abajo
+   ⚠ NO TOCAR. Se ajusta con las variables --folio-*
    ============================================================ */
+
+/* ── MISMO TAMAÑO PARA TODOS LOS FOLIOS ──
+   Las columnas de una fila se estiran a la altura de la más alta
+   y cada folio rellena su columna. (!important porque Bootstrap lo usa en .align-items-center) */
+.pf-board .row{
+    align-items: stretch !important;
+}
+
+.pf-board .row > *{
+    display: flex;
+}
+
 .pf-card{
     position: relative;
     display: flex;
     flex-direction: column;
-    height: auto;              /* ⚠ el folio SIEMPRE mide lo que mide su contenido (imagen + texto). No poner % ni px aquí */
+    flex: 1 1 auto;            /* rellena la columna (ancho y alto) */
+    height: auto;              /* ⚠ NO poner % ni px aquí */
     align-items: center;
+    box-sizing: border-box;
+
+    /* Las franjas de arriba y abajo se reservan con padding en % (= % del ANCHO del folio),
+       igual a la proporción de cada imagen. El -1px hace que el medio solape 1px bajo la
+       pieza de arriba/abajo y no salga una línea fina entre secciones. */
+    padding: calc(var(--folio-arriba-alto) / var(--folio-arriba-ancho) * 100% - 1px) 0
+             calc(var(--folio-abajo-alto)  / var(--folio-abajo-ancho)  * 100% - 1px) 0;
+
+    /* 3 capas (la primera queda encima): arriba, abajo, medio */
+    background-image: var(--folio-img-arriba), var(--folio-img-abajo), var(--folio-img-medio);
+    background-size: 100% auto, 100% auto, var(--folio-medio-tamano);   /* "auto" = mantiene la proporción */
+    background-position: top center, bottom center, center;
+    background-repeat: no-repeat;
+    background-origin: border-box, border-box, content-box;
+    background-clip: border-box, border-box, content-box;   /* el medio solo pinta ENTRE arriba y abajo */
+    background-color: var(--folio-respaldo);                 /* (se pinta solo en la zona central) */
+
     will-change: transform;
     transition: var(--transition-card);
 }
 
-.pf-card::before{                            /* chincheta (opcional) */
+/* Contenido (imagen y texto): nunca más ancho que el papel */
+.pf-card > *{
+    width: calc(100% - 2 * var(--folio-margen-x));
+    min-width: 0;
+}
+
+.pf-card > :first-child{
+    margin-top: var(--folio-margen-arriba);
+}
+
+.pf-card > :last-child{
+    margin-bottom: var(--folio-margen-abajo);
+}
+
+.pf-card::before{                            /* chincheta suelta (opcional) */
     content: "";
     position: absolute;
     top: var(--folio-chincheta-y);
@@ -256,7 +315,6 @@ h1{
 
 .pf-card img{
     display: block;
-    width: 100%;
     height: auto;
     flex-shrink: 0;            /* la imagen nunca se encoge dentro del folio */
 }
@@ -270,7 +328,7 @@ h1{
     align-items: center;
     justify-content: center;
     flex-grow: 1;
-    width: 100%;
+    min-height: calc(var(--folio-texto-lineas) * 1.5em);   /* reserva N líneas de texto */
     font-size: var(--font-size-lg);
     text-align: center;
 }
@@ -310,12 +368,6 @@ h1{
 /* ============================================================
    Responsive
    ============================================================ */
-@media (max-width: 860px){
-    .pf-card-text{
-        min-height: var(--lineas-texto);
-    }
-}
-
 @media (max-width: 992px){
     .pf-col{
         gap: var(--gap-col-mobile);
