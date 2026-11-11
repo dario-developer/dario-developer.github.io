@@ -8,7 +8,7 @@
    ║     -padding  → espacio entre el borde y el contenido            ║
    ║  1. FONDO TOTAL   (nubes, se repite en vertical)                 ║
    ║  2. TABLÓN        (tablones de madera, se repite en vertical)    ║
-   ║  3. FOLIO         (hoja de papel: pieza arriba/medio/abajo)      ║
+   ║  3. FOLIO         (hoja de papel: esquinas + lados + centro)     ║
    ║  4. TITULAR       (tablón grande de la cabecera)                 ║
    ║  5. PLACA         (rótulo oscuro dentro del titular)             ║
    ╚══════════════════════════════════════════════════════════════════╝ */
@@ -35,39 +35,63 @@
     --tablon-lado: 16;             /* ← ancho en px del borde lateral (solo el número) */
     --tablon-repeticiones: 1;      /* nº mínimo de tiles (1 tile = 5 tablones) */
     --tablon-padding: 40px 32px;   /* margen interior: arriba/abajo  izquierda/derecha */
+    --tablon-respaldo: #7a4e2d;    /* color marrón SOLO si las imágenes del tablón no cargan (lo activa Js/script.js) */
 
     /* ══════════════════════════════════════════════════════════════
-       3. FOLIO · hoja de papel que enmarca cada imagen+texto
-       Se construye por SECCIONES (como los tablones):
-            ┌───────────────┐
-            │  ARRIBA       │  borde roto de arriba (+ chincheta si la lleva)
-            ├───────────────┤
-            │  MEDIO        │  laterales del papel (se estira en vertical)
-            ├───────────────┤
-            │  ABAJO        │  borde roto de abajo
-            └───────────────┘
-       Las 3 imágenes deben tener EL MISMO ANCHO (ver documentación / script dividir_folio.py).
-       Todo se escala con el ancho del folio, por eso no se puede deformar ni desbordar.
+       3. FOLIO · hoja de papel (se usa con la clase .pf-folio)
+       Funciona para CUALQUIER tamaño o proporción: las esquinas no se
+       deforman, los lados se repiten y el centro rellena.
+       Solo hacen falta 3 imágenes. El resto de esquinas/lados se
+       obtienen ROTANDO estas.
+
+       ► ORIENTACIÓN en que deben estar dibujadas:
+            ESQUINA = la de ABAJO-IZQUIERDA (lo roto mira a la izquierda y abajo)
+            LADO    = el de ABAJO (horizontal, lo roto mira hacia abajo)
+         Si el artista las dibuja de otra forma, no hace falta tocar el código:
+         usa --folio-esquina-giro / --folio-lado-giro (más abajo).
+
+       ► IMPORTANTE: las imágenes deben estar RECORTADAS AL DIBUJO, sin margen
+         transparente alrededor (si no, se ven huecos entre las piezas).
+         Photoshop: Imagen > Recortar > Píxeles transparentes · GIMP: Imagen >
+         Recorte automático · Krita: Imagen > Recortar a contenido.
+         Los "-recorte.png" son los originales (3000×3000) recortados SOLO a la
+         franja del borde: esquina = 520×520 de abajo-izquierda, lado = franja
+         de abajo de 1796×520. Así el trazo negro se ve con grosor real.
        ══════════════════════════════════════════════════════════════ */
-    --folio-img-arriba: url("/media/img/Deco/Hojas/hojalado.png");   /* ← IMAGEN 1: parte de arriba */
-    --folio-img-medio:  url("/media/img/Deco/Hojas/hojacentro.png");    /* ← IMAGEN 2: parte central */
-    --folio-img-abajo:  url("/media/img/Deco/Hojas/hojaesquina2.png");    /* ← IMAGEN 3: parte de abajo */
+    --folio-img-esquina: url("../media/img/Deco/Hojas/hojaesquina1-recorte.png");  /* ← IMAGEN 1: esquina abajo-izquierda */
+    --folio-img-lado:    url("../media/img/Deco/Hojas/hojalado-recorte.png");     /* ← IMAGEN 2: lado de abajo */
+    --folio-img-centro:  url("../media/img/Deco/Hojas/hojacentro.png");           /* ← IMAGEN 3: centro */
 
-    /* Medidas en px de las imágenes de arriba y abajo (solo números, SIN "px").
-       Las imprime el script dividir_folio.py. Sirven para calcular la proporción. */
-    --folio-arriba-ancho: 1016;    /* ← ancho de folio-arriba.png */
-    --folio-arriba-alto:  170;     /* ← alto  de folio-arriba.png */
-    --folio-abajo-ancho:  1016;    /* ← ancho de folio-abajo.png */
-    --folio-abajo-alto:   100;     /* ← alto  de folio-abajo.png */
+    /* MEDIDAS REALES de tus imágenes: los píxeles que miden los ARCHIVOS (solo el número, sin "px").
+       Cámbialas solo si cambian las imágenes. */
+    --folio-esquina-tam: 520;      /* ← esquina: lo que mide por lado (es cuadrada) */
+    --folio-lado-ancho: 1796;      /* ← lado: ancho de la imagen (largo de una repetición) */
+    --folio-lado-alto: 520;        /* ← lado: alto de la imagen (grosor del borde) */
 
-    /* Margen del contenido (imagen + texto) respecto al papel */
-    --folio-margen-x: 10%;         /* laterales. En % del ancho del folio (si sube, la imagen se hace más pequeña) */
-    --folio-margen-arriba: 0.25rem;/* espacio entre la parte de arriba del papel y la imagen */
-    --folio-margen-abajo: 0.5rem;  /* espacio entre el texto y la parte de abajo del papel */
+    /* TAMAÑO DEL FOLIO EN PANTALLA: UN SOLO NÚMERO.
+       = píxeles de pantalla por cada píxel de imagen. Ej: 520 px × 0.1 = 52 px de esquina.
+       Más grande = esquinas y bordes más gruesos. (Nunca pongas aquí "1500px": es un número sin unidad.) */
+    --folio-escala: 0.1;
 
-    --folio-medio-tamano: 100% 100%; /* "100% 100%" = el medio se estira. No tocar salvo que el artista lo pida */
-    --folio-texto-lineas: 2;       /* líneas de texto que se RESERVAN bajo la imagen (así todos los folios miden igual aunque un título ocupe 1 o 2 líneas) */
+    /* Qué parte de la pieza (desde fuera) ocupa el borde irregular, de 0 a 1.
+       El papel del centro y el contenido empiezan a partir de ahí; el resto de la
+       pieza es papel liso y el contenido puede ir por encima.
+       Si asoma papel por fuera de las ondas → súbelo. Si sobra margen → bájalo. */
+    --folio-borde-dibujo: 0.35;
+
+    /* Centro: "100% 100%" + no-repeat = una imagen de papel que se estira.
+       Si es una textura pequeña que se repite: ej. 128px 128px + repeat. */
+    --folio-centro-tamano: 100% 100%;
+    --folio-centro-repeat: no-repeat;
+
+    /* Corrección de orientación (se SUMA a todas las rotaciones). Valores: 0deg, 90deg, 180deg o 270deg.
+       Con tus dibujos actuales (esquina abajo-izquierda y lado de abajo) déjalos en 0deg. */
+    --folio-esquina-giro: 0deg;
+    --folio-lado-giro: 0deg;
+
+    --folio-padding: 0.75rem;      /* espacio entre el borde del papel y el contenido (UN solo valor) */
     --folio-respaldo: transparent; /* color provisional del papel mientras no hay arte (ej: khaki). Con arte: transparent */
+    --folio-texto-lineas: 2;       /* (.pf-card) líneas de texto reservadas bajo la imagen para que todas midan igual */
 
     /* Chincheta / clip (OPCIONAL): imagen suelta encima del folio, centrada arriba.
        Si la chincheta YA está dibujada dentro de folio.png, déjalo en none. */
@@ -83,7 +107,9 @@
     --titular-borde: 1.5rem 2rem;  /* ← borde en pantalla: ARRIBA/ABAJO  IZQUIERDA/DERECHA */
     --titular-padding: 0.5rem;     /* espacio entre el borde y la placa */
     --titular-repeat: stretch;
-    --titular-respaldo: transparent;
+    --titular-respaldo: #8b5a2b;   /* ⚠ TEMPORAL (color madera) para ver el texto. Con arte: transparent */
+    --titular-logo: 100px;         /* tamaño del logo en escritorio (en móvil se reduce solo) */
+    --carteles-separacion: 2.5rem; /* espacio entre el titular y el tablón de debajo */
 
     /* ══════════════════════════════════════════════════════════════
        5. PLACA · rótulo oscuro dentro del titular (lleva el texto)
@@ -93,9 +119,18 @@
     --placa-borde: 1rem 1.5rem;    /* ← borde en pantalla: ARRIBA/ABAJO  IZQUIERDA/DERECHA */
     --placa-padding: 1rem 1.5rem;  /* espacio entre el borde y el texto */
     --placa-repeat: stretch;
-    --placa-respaldo: transparent;
+    --placa-respaldo: #2b1d14;     /* ⚠ TEMPORAL (marrón oscuro) para ver el texto. Con arte: transparent */
     --placa-color-texto: white;
     --fuente-titular: inherit;     /* ej: "Patrick Hand", cursive */
+
+    /* ══════════════════════════════════════════════════════════════
+       6. PROYECTOS · tablones alternos (HTML/proyectos.html)
+       ══════════════════════════════════════════════════════════════ */
+    --proyecto-ancho: clamp(500px, 45vw, 900px);  /* ancho del tablón en escritorio */
+    --proyecto-hoja-ancho: 40%;                  /* ancho de la hoja dentro del tablón */
+    --proyecto-tablon-padding: 1rem 1.5rem;      /* margen interior del tablón */
+    --proyecto-tablon-repeticiones: 0.5;         /* alto mínimo = 0.5 tiles de madera (~389px) */
+    --proyecto-texto-tamano: 1.1rem;
 
     /* ══════════════════════════════════════════════════════════════
        OTROS (no tienen que ver con el arte)
@@ -107,20 +142,6 @@
     --gap-col-mobile: 7rem;
     --transition-card: transform 0.3s ease;
     --transition-fade: opacity 0.25s ease;
-}
-
-/* FUENTES */
-@font-face {
-    font-family: 'Zilla Slab';
-    src: url(https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@700&display=swap);
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
-}
-
-*{
-    font-family:'Zilla Slab';
-    font-size: large;
 }
 
 /* ============================================================
@@ -153,11 +174,6 @@ p{
 
 h1{
     margin-bottom: 0px;
-}
-
-.text-link{
-    text-decoration: underline;
-    font-weight: bold;
 }
 
 /* ============================================================
@@ -232,13 +248,48 @@ h1{
          border-radius, overflow:hidden ni border-width arriba/abajo. */
 }
 
+/* Sin arte de madera: Js/script.js pone la clase pf-sin-tablon en <html>
+   y el tablón se pinta de color liso (también bajo los bordes laterales). */
+.pf-sin-tablon .pf-board{
+    background-color: var(--tablon-respaldo);
+    background-clip: border-box;
+    color: #fff3dc;               /* texto claro para que se lea sobre el marrón */
+}
+
+/* Enlaces sueltos sobre el tablón: mismo color claro y subrayados (las hojas .pf-card no cambian) */
+.pf-sin-tablon .pf-board a:not(.pf-card){
+    color: inherit;
+    text-decoration: underline;
+}
+
 /* ============================================================
    Layout
    ============================================================ */
+/* Separación entre el titular (cartel de arriba) y el siguiente cartel */
+.pf-titular{
+    margin-bottom: var(--carteles-separacion);
+}
+
 .pf-header{
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 0.75rem;
+}
+
+/* Los textos pueden encogerse y partir línea en vez de empujar fuera de la pantalla */
+.pf-header > p{
+    flex: 1 1 0;
+    min-width: 0;
+    margin: 0;
+    font-size: clamp(0.9rem, 4vw, 1.25rem);
+    overflow-wrap: break-word;
+}
+
+.pf-logo{
+    flex-shrink: 0;
+    width: clamp(48px, 16vw, var(--titular-logo));
+    height: auto;
 }
 
 .pf-col{
@@ -250,66 +301,137 @@ h1{
 }
 
 /* ============================================================
-   3. FOLIO (.pf-card) · por secciones: arriba / medio / abajo
+   3. FOLIO (.pf-folio) · hoja de papel por piezas
+   Reutilizable en cualquier sección: basta con añadir la clase
+   .pf-folio a un elemento (Js/folio.js crea las piezas solo).
    ⚠ NO TOCAR. Se ajusta con las variables --folio-*
+   (Para ver las piezas y ajustar: añade temporalmente la clase pf-folio-debug)
    ============================================================ */
+.pf-folio{
+    /* Medidas en pantalla (px) calculadas a partir de las medidas del archivo y la escala */
+    --_esq: calc(var(--folio-esquina-tam) * var(--folio-escala) * 1px);   /* lado de la esquina */
+    --_gro: calc(var(--folio-lado-alto)   * var(--folio-escala) * 1px);   /* grosor del lado */
+    --_lar: calc(var(--folio-lado-ancho)  * var(--folio-escala) * 1px);   /* largo de una repetición del lado */
+    --_min: min(var(--_esq), var(--_gro));
+    --_max: max(var(--_esq), var(--_gro));
+    --_bor: calc(var(--_min) * var(--folio-borde-dibujo));               /* franja del borde irregular */
 
-/* ── MISMO TAMAÑO PARA TODOS LOS FOLIOS ──
-   Las columnas de una fila se estiran a la altura de la más alta
-   y cada folio rellena su columna. (!important porque Bootstrap lo usa en .align-items-center) */
-.pf-board .row{
-    align-items: stretch !important;
-}
-
-.pf-board .row > *{
-    display: flex;
-}
-
-.pf-card{
     position: relative;
-    display: flex;
-    flex-direction: column;
-    flex: 1 1 auto;            /* rellena la columna (ancho y alto) */
-    height: auto;              /* ⚠ NO poner % ni px aquí */
-    align-items: center;
+    isolation: isolate;
     box-sizing: border-box;
+    min-width: calc(2 * var(--_max));              /* nunca más pequeño que dos esquinas */
+    min-height: calc(2 * var(--_max));
 
-    /* Las franjas de arriba y abajo se reservan con padding en % (= % del ANCHO del folio),
-       igual a la proporción de cada imagen. El -1px hace que el medio solape 1px bajo la
-       pieza de arriba/abajo y no salga una línea fina entre secciones. */
-    padding: calc(var(--folio-arriba-alto) / var(--folio-arriba-ancho) * 100% - 1px) 0
-             calc(var(--folio-abajo-alto)  / var(--folio-abajo-ancho)  * 100% - 1px) 0;
+    /* Borde transparente = franja irregular del dibujo. El centro se pinta desde ahí
+       hacia dentro, DEBAJO de las piezas (que son papel opaco), así que no hay huecos. */
+    border-style: solid;
+    border-color: transparent;
+    border-width: var(--_bor);
+    padding: var(--folio-padding);
 
-    /* 3 capas (la primera queda encima): arriba, abajo, medio */
-    background-image: var(--folio-img-arriba), var(--folio-img-abajo), var(--folio-img-medio);
-    background-size: 100% auto, 100% auto, var(--folio-medio-tamano);   /* "auto" = mantiene la proporción */
-    background-position: top center, bottom center, center;
-    background-repeat: no-repeat;
-    background-origin: border-box, border-box, content-box;
-    background-clip: border-box, border-box, content-box;   /* el medio solo pinta ENTRE arriba y abajo */
-    background-color: var(--folio-respaldo);                 /* (se pinta solo en la zona central) */
-
-    will-change: transform;
-    transition: var(--transition-card);
+    /* CENTRO: solo se pinta dentro del borde */
+    background-color: var(--folio-respaldo);
+    background-image: var(--folio-img-centro);
+    background-size: var(--folio-centro-tamano);
+    background-repeat: var(--folio-centro-repeat);
+    background-origin: padding-box;
+    background-clip: padding-box;
 }
 
-/* Contenido (imagen y texto): nunca más ancho que el papel */
-.pf-card > *{
-    width: calc(100% - 2 * var(--folio-margen-x));
-    min-width: 0;
+/* El contenido va POR ENCIMA de las piezas */
+.pf-folio > :not(.pf-folio-pieza){
+    position: relative;
+    z-index: 1;
 }
 
-.pf-card > :first-child{
-    margin-top: var(--folio-margen-arriba);
+/* Cada pieza = capa del tamaño del folio entero con un LADO (::before) y una ESQUINA (::after).
+   Las crea Js/folio.js (arriba, derecha, abajo, izquierda). */
+.pf-folio-pieza{
+    position: absolute;
+    inset: calc(-1 * var(--_bor));     /* cubre TODO el folio, también el borde */
+    z-index: 0;
+    pointer-events: none;
+    container-type: size;              /* permite usar cqw/cqh (medidas del folio) en los lados verticales */
 }
 
-.pf-card > :last-child{
-    margin-bottom: var(--folio-margen-abajo);
-}
-
-.pf-card::before{                            /* chincheta suelta (opcional) */
+.pf-folio-pieza::before,
+.pf-folio-pieza::after{
     content: "";
     position: absolute;
+}
+
+/* LADO (dibujado "de abajo": lo roto mira hacia abajo) */
+.pf-folio-pieza::before{
+    height: var(--_gro);
+    background-image: var(--folio-img-lado);
+    background-size: var(--_lar) var(--_gro);
+    background-repeat: round no-repeat;        /* se repite a lo largo y se ajusta sin cortes */
+}
+
+/* ESQUINA (dibujada "de abajo-izquierda") */
+.pf-folio-pieza::after{
+    width: var(--_esq);
+    height: var(--_esq);
+    background: var(--folio-img-esquina) center / 100% 100% no-repeat;
+}
+
+/* ---- ARRIBA ---- */
+.pf-folio-arriba::before{
+    top: 0;
+    left: calc(var(--_esq) - 1px);              /* -1px: solapa bajo la esquina (evita una línea fina) */
+    right: calc(var(--_esq) - 1px);
+    transform: rotate(calc(180deg + var(--folio-lado-giro)));
+}
+.pf-folio-arriba::after{
+    top: 0;
+    left: 0;
+    transform: rotate(calc(90deg + var(--folio-esquina-giro)));
+}
+
+/* ---- DERECHA ---- */
+.pf-folio-derecha::before{
+    width: calc(100cqh - 2 * var(--_esq) + 2px);                       /* largo del lado antes de girar */
+    left: calc(100cqw - var(--_gro) / 2 - (100cqh - 2 * var(--_esq) + 2px) / 2);
+    top: calc(50cqh - var(--_gro) / 2);
+    transform: rotate(calc(270deg + var(--folio-lado-giro)));
+}
+.pf-folio-derecha::after{
+    top: 0;
+    right: 0;
+    transform: rotate(calc(180deg + var(--folio-esquina-giro)));
+}
+
+/* ---- ABAJO ---- */
+.pf-folio-abajo::before{
+    bottom: 0;
+    left: calc(var(--_esq) - 1px);
+    right: calc(var(--_esq) - 1px);
+    transform: rotate(var(--folio-lado-giro));
+}
+.pf-folio-abajo::after{
+    bottom: 0;
+    right: 0;
+    transform: rotate(calc(270deg + var(--folio-esquina-giro)));
+}
+
+/* ---- IZQUIERDA ---- */
+.pf-folio-izquierda::before{
+    width: calc(100cqh - 2 * var(--_esq) + 2px);
+    left: calc(var(--_gro) / 2 - (100cqh - 2 * var(--_esq) + 2px) / 2);
+    top: calc(50cqh - var(--_gro) / 2);
+    transform: rotate(calc(90deg + var(--folio-lado-giro)));
+}
+.pf-folio-izquierda::after{
+    bottom: 0;
+    left: 0;
+    transform: rotate(var(--folio-esquina-giro));
+}
+
+/* Chincheta suelta (opcional) */
+.pf-folio::before{
+    content: "";
+    position: absolute;
+    z-index: 2;
     top: var(--folio-chincheta-y);
     left: 50%;
     width: var(--folio-chincheta-ancho);
@@ -319,8 +441,41 @@ h1{
     pointer-events: none;
 }
 
+/* ---- MODO AJUSTE (temporal): dibuja el recuadro de cada pieza ----
+   Rojo = lados · azul = esquinas · verde = centro. Quítalo cuando todo encaje. */
+.pf-folio-debug{ outline: 2px dashed green; }
+.pf-folio-debug .pf-folio-pieza::before{ outline: 2px solid red; }
+.pf-folio-debug .pf-folio-pieza::after{ outline: 2px solid blue; }
+
+/* ============================================================
+   TARJETA (.pf-card) · imagen + texto dentro de un folio
+   Uso: <a class="pf-card pf-folio"> ... </a>
+   ============================================================ */
+
+/* ── MISMO TAMAÑO PARA TODAS LAS TARJETAS DE UNA FILA ──
+   Las columnas se estiran a la altura de la más alta y cada tarjeta rellena su columna.
+   (!important porque Bootstrap lo usa en .align-items-center) */
+.pf-board .row{
+    align-items: stretch !important;
+}
+
+.pf-board .row > *{
+    display: flex;
+}
+
+.pf-card{
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;            /* rellena la columna (ancho y alto) */
+    height: auto;              /* ⚠ NO poner % ni px aquí */
+    align-items: center;
+    will-change: transform;
+    transition: var(--transition-card);
+}
+
 .pf-card img{
     display: block;
+    width: 100%;
     height: auto;
     flex-shrink: 0;            /* la imagen nunca se encoge dentro del folio */
 }
@@ -334,9 +489,73 @@ h1{
     align-items: center;
     justify-content: center;
     flex-grow: 1;
+    width: 100%;
     min-height: calc(var(--folio-texto-lineas) * 1.5em);   /* reserva N líneas de texto */
     font-size: var(--font-size-lg);
     text-align: center;
+}
+
+/* ============================================================
+   TITULAR DE PÁGINA (.pf-titular-pagina) · cartel pequeño centrado
+   Uso: <header class="pf-titular pf-titular-pagina"><h1 class="pf-placa">Título</h1></header>
+   ============================================================ */
+.pf-titular-pagina{
+    width: fit-content;
+    max-width: calc(100% - 2 * clamp(60px, 12%, 90px));   /* deja sitio al botón de volver */
+    margin: 1rem auto var(--carteles-separacion);
+}
+
+.pf-titular-pagina > .pf-placa{
+    margin: 0;
+    font-size: clamp(1.5rem, 5vw, 2.5rem);
+    text-align: center;
+}
+
+/* ============================================================
+   PROYECTOS (.pf-proyecto) · tablones alternos pegados al borde
+   pf-proyecto-der → tablón a la derecha, hoja dentro y texto fuera
+   pf-proyecto-izq → tablón a la izquierda, texto fuera y hoja dentro
+   Se ajusta con las variables --proyecto-*
+   ============================================================ */
+/* Separación vertical = la mitad del alto de los tablones, en TODOS los tamaños.
+   Js/script.js mide el tablón más alto y lo guarda en --proyecto-alto-tablon. */
+.pf-proyectos{
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--proyecto-alto-tablon, 12rem) / 2);
+    padding-bottom: calc(var(--proyecto-alto-tablon, 12rem) / 2);
+}
+
+.pf-proyecto{
+    display: flex;
+}
+
+.pf-proyecto-der{ justify-content: flex-end; }
+.pf-proyecto-izq{ justify-content: flex-start; }
+
+/* El tablón: mismo .pf-board de siempre, solo cambia tamaño y reparto interior */
+.pf-proyecto-tablon{
+    --tablon-repeticiones: var(--proyecto-tablon-repeticiones);
+    --tablon-padding: var(--proyecto-tablon-padding);
+    width: var(--proyecto-ancho);
+    flex-direction: row;          /* hoja y texto uno al lado del otro */
+    align-items: center;
+    gap: 1.5rem;
+}
+
+/* Izquierda: la hoja queda en el lado de dentro (hacia el centro de la pantalla) */
+.pf-proyecto-izq .pf-proyecto-tablon{
+    flex-direction: row-reverse;
+}
+
+.pf-proyecto-hoja{
+    flex: 0 0 var(--proyecto-hoja-ancho);
+}
+
+.pf-proyecto-texto{
+    flex: 1 1 0;
+    min-width: 0;
+    font-size: var(--proyecto-texto-tamano);
 }
 
 /* ============================================================
@@ -390,6 +609,53 @@ h1{
 
     .pf-carousel{
         display: block;
+    }
+
+    /* Tablet: tablones más anchos */
+    :root{
+        --proyecto-ancho: 65%;
+    }
+}
+
+/* Móvil: mismo diseño que en escritorio (hoja + texto en fila, tablones alternos), a escala */
+@media (max-width: 768px){
+    :root{
+        --proyecto-hoja-ancho: 34vw;           /* ancho de la hoja (medida fija para poder alinearlas) */
+        --proyecto-pad-x: 0.5rem;              /* margen interior izquierda/derecha del tablón */
+        --proyecto-tablon-padding: 0.6rem var(--proyecto-pad-x);
+        --proyecto-tablon-repeticiones: 0;     /* el tablón se ajusta a su contenido */
+        --proyecto-texto-tamano: clamp(0.6rem, 2.9vw, 0.9rem);
+
+        /* Ancho del tablón = el máximo que deja las hojas de tablones alternos
+           justo una encima de otra (misma columna X), sin cruzarse:
+           (pantalla + 2 × (borde lateral + padding) + hoja) / 2 */
+        --proyecto-ancho: calc((100% + 2 * (var(--tablon-lado) * 1px + var(--proyecto-pad-x)) + var(--proyecto-hoja-ancho)) / 2);
+    }
+
+    .pf-proyecto-tablon{
+        gap: 0.5rem;
+    }
+
+    /* Hojas de proyecto con bordes más finos para que quepan (solo aquí, no en el index) */
+    .pf-proyecto-hoja{
+        --folio-escala: 0.05;
+        --folio-padding: 0.35rem;
+    }
+
+    .pf-proyecto-hoja .pf-card-text{
+        font-size: clamp(0.6rem, 3vw, 0.9rem);
+        min-height: 2.6em;
+    }
+}
+
+/* Móvil: bordes del titular y la placa más finos para que quepa el contenido */
+@media (max-width: 576px){
+    :root{
+        --titular-borde: 0.75rem 1rem;
+        --titular-padding: 0.25rem;
+        --placa-borde: 0.5rem 0.75rem;
+        --placa-padding: 0.5rem 0.75rem;
+        --carteles-separacion: 1.5rem;
     }
 }
 

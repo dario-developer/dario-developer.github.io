@@ -15,26 +15,26 @@
         <!-- TITULAR. Cabecera con nombre, logo, etc.
              .pf-titular = tablón grande de fondo  |  .pf-placa = rótulo oscuro con el texto.
              Solo hay que poner las clases; las imágenes se cambian en el css (variables --titular-* y --placa-*). -->
-        <header class="pf-titular mt-2">
+        <header class="pf-titular mt-3">
             <div class="pf-placa pf-header">
-                <h1>Darío Navarro</h1>
+                <p>Darío Navarro</p>
 
                 <!-- PONER LOGO BUENO -->
-                <img class="rounded-5 w-auto" src="https://picsum.photos/100" alt="Mi logo">
+                <img class="pf-logo rounded-5" src="https://picsum.photos/100" alt="Mi logo">
 
-                <h1 class="text-end">Game designer</h1>
+                <p class="text-end">Game designer</p>
             </div>
         </header>
 
         <!-- TABLÓN de anuncios.
              .pf-board = fondo de madera (variables --tablon-* del css).
-             El .row de dentro contiene los FOLIOS (.pf-card) pegados encima (variables --folio-* del css). -->
-        <div class="pf-board my-4">
+             El .row de dentro contiene las TARJETAS (.pf-card) con el papel .pf-folio (variables --folio-* del css). -->
+        <div class="pf-board mb-4">
             <div class="row gy-3 gy-lg-0 gx-3 justify-content-evenly">
 
                 <!-- FOLIO 1 -->
                 <div class="col-12 col-sm-6 col-lg-3">
-                    <a class="pf-card" href="HTML/sobremi.html">
+                    <a class="pf-card pf-folio" href="HTML/sobremi.html">
                         <img class="img-fluid" src="https://picsum.photos/400" alt="Imagen sobre mí">
                         <p class="pf-card-text">Sobre mi</p>
                     </a>
@@ -42,7 +42,7 @@
 
                 <!-- FOLIO 2 -->
                 <div class="col-12 col-sm-6 col-lg-3">
-                    <a class="pf-card d-flex" href="HTML/proyectos.html">
+                    <a class="pf-card pf-folio" href="HTML/proyectos.html">
                         <img class="img-fluid" src="https://picsum.photos/400" alt="Imagen proyectos">
                         <p class="pf-card-text">Proyectos</p>
                     </a>
@@ -50,7 +50,7 @@
 
                 <!-- FOLIO 3 -->
                 <div class="col-12 col-sm-6 col-lg-3">
-                    <a class="pf-card" href="HTML/lineatiempo.html">
+                    <a class="pf-card pf-folio" href="HTML/lineatiempo.html">
                         <img class="img-fluid" src="https://picsum.photos/400" alt="Imagen línea de tiempo">
                         <p class="pf-card-text">Linea de tiempo</p>
                     </a>
@@ -58,9 +58,9 @@
 
                 <!-- FOLIO 4 -->
                 <div class="col-12 col-sm-6 col-lg-3">
-                    <a class="pf-card" href="media/Docs/CV-MonitorDarioNavarro.pdf" download="CV Dario Navarro Garcia">
+                    <a class="pf-card pf-folio" href="HTML/sobremi.html">
                         <img class="img-fluid" src="https://picsum.photos/400" alt="Imagen CV">
-                        <p class="pf-card-text">Descargar CV</p>
+                        <p class="pf-card-text">CV</p>
                     </a>
                 </div>
 
@@ -70,6 +70,9 @@
         <!-- LIBRERÍAS -->
         <!-- JQueries -->
         <script src="js/libraries/jquery.js"></script>
+
+        <!-- JS de los folios (crea las esquinas y lados de cada .pf-folio) -->
+        <script src="Js/folio.js"></script>
 
         <!-- Mi JS -->
         <script src="Js/script.js"></script>
