@@ -6,7 +6,22 @@
    ============================================================ */
 function pfFolioIniciar(raiz) {
     var lados = ["arriba", "derecha", "abajo", "izquierda"];
-    (raiz || document).querySelectorAll(".pf-folio").forEach(function (folio) {
+    raiz = raiz || document;
+
+    // 1. Una <img> no puede tener piezas dentro: se envuelve en un <span> que se queda la clase
+    raiz.querySelectorAll("img.pf-folio, img.pf-marco").forEach(function (img) {
+        var envoltorio = document.createElement("span");
+        envoltorio.className = "pf-envoltorio pf-folio" + (img.classList.contains("pf-marco") ? " pf-marco" : "");
+        img.classList.remove("pf-folio", "pf-marco");
+        img.parentNode.insertBefore(envoltorio, img);
+        envoltorio.appendChild(img);
+    });
+
+    // 2. .pf-marco = folio con otras hojas: usa el mismo motor
+    raiz.querySelectorAll(".pf-marco").forEach(function (el) { el.classList.add("pf-folio"); });
+
+    // 3. Crea las piezas (lados y esquinas) de cada folio
+    raiz.querySelectorAll(".pf-folio").forEach(function (folio) {
         if (folio.querySelector(":scope > .pf-folio-pieza")) return;   // ya tiene sus piezas
         lados.forEach(function (lado) {
             var pieza = document.createElement("span");

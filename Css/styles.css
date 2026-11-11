@@ -100,6 +100,27 @@
     --folio-chincheta-y: -0.5rem;  /* posición vertical (negativo = sobresale por arriba) */
 
     /* ══════════════════════════════════════════════════════════════
+       3b. MARCO DE FOTO (.pf-marco) · el mismo sistema que el FOLIO pero
+       con las hojas de media/img/Deco/Hojas/foto. Mismas reglas (esquina
+       abajo-izquierda, lado de abajo, imágenes recortadas al dibujo).
+       ══════════════════════════════════════════════════════════════ */
+    --marco-img-esquina: url("../media/img/Deco/Hojas/foto/hojafotoesquina1-recorte.png");
+    --marco-img-lado:    url("../media/img/Deco/Hojas/foto/hojafotolado-recorte.png");
+    --marco-img-centro:  url("../media/img/Deco/Hojas/foto/hojafotocentro.png");
+    --marco-esquina-tam: 440;      /* medidas reales de los archivos (solo el número) */
+    --marco-lado-ancho: 1795;
+    --marco-lado-alto: 440;
+    --marco-escala: 0.08;          /* 440 × 0.08 ≈ 35px de esquina en pantalla */
+    --marco-borde-dibujo: 0.2;     /* parte de la pieza ocupada por el borde irregular (0 a 1) */
+    --marco-padding: 0.4rem;       /* espacio entre el borde del marco y la imagen */
+
+    /* GALERÍA y CARRUSEL (Sobre mí): todas las fotos con el mismo tamaño */
+    --galeria-proporcion: 4 / 5;   /* ancho / alto de TODAS las fotos (se recortan, no se deforman). Ej: 1 / 1, 3 / 4, 16 / 9 */
+    --galeria-encuadre: center;    /* qué parte de la foto se conserva al recortar (center, top, 50% 20%...) */
+    --carrusel-circulo: rgba(20, 12, 8, 0.65);  /* círculo oscuro de flechas y marcadores */
+    --carrusel-marcador: 0.7rem;   /* tamaño de cada marcador (punto) */
+
+    /* ══════════════════════════════════════════════════════════════
        4. TITULAR · tablón grande de la cabecera
        ══════════════════════════════════════════════════════════════ */
     --titular-img: url("../media/img/titular.png");    /* ← IMAGEN */
@@ -339,7 +360,9 @@ h1{
 }
 
 /* El contenido va POR ENCIMA de las piezas */
-.pf-folio > :not(.pf-folio-pieza){
+/* :where() = prioridad 0, para no pisar elementos que ya se posicionan solos
+   (ej: flechas e indicadores del carrusel, que son position:absolute) */
+:where(.pf-folio > :not(.pf-folio-pieza)){
     position: relative;
     z-index: 1;
 }
@@ -446,6 +469,42 @@ h1{
 .pf-folio-debug{ outline: 2px dashed green; }
 .pf-folio-debug .pf-folio-pieza::before{ outline: 2px solid red; }
 .pf-folio-debug .pf-folio-pieza::after{ outline: 2px solid blue; }
+
+/* ============================================================
+   MARCO DE FOTO (.pf-marco) · reutiliza el motor del FOLIO con otras hojas.
+   Uso (solo hay que poner la clase; Js/script.js hace el resto):
+     · En una imagen:      <img class="pf-marco img-fluid" src="...">
+       (el JS la envuelve en un <span class="pf-marco pf-folio pf-envoltorio">)
+     · En un contenedor:   <div class="pf-marco"> ... </div>   (ej: un carrusel)
+   Se ajusta con las variables --marco-* del :root.
+   ============================================================ */
+.pf-marco{
+    --folio-img-esquina: var(--marco-img-esquina);
+    --folio-img-lado:    var(--marco-img-lado);
+    --folio-img-centro:  var(--marco-img-centro);
+    --folio-esquina-tam: var(--marco-esquina-tam);
+    --folio-lado-ancho:  var(--marco-lado-ancho);
+    --folio-lado-alto:   var(--marco-lado-alto);
+    --folio-escala:      var(--marco-escala);
+    --folio-borde-dibujo: var(--marco-borde-dibujo);
+    --folio-padding:     var(--marco-padding);
+}
+
+/* Envoltorio que crea el JS alrededor de una <img> con .pf-folio o .pf-marco:
+   ocupa lo que la imagen (sin pasarse del ancho disponible) */
+.pf-envoltorio{
+    display: inline-block;
+    max-width: 100%;
+    vertical-align: middle;
+    align-self: center;            /* dentro de un flex: no se estira, se centra */
+    margin-inline: auto;
+}
+
+.pf-envoltorio > img{
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
 
 /* ============================================================
    TARJETA (.pf-card) · imagen + texto dentro de un folio
@@ -588,6 +647,46 @@ h1{
    ============================================================ */
 .pf-carousel{
     display: none;
+}
+
+/* Mismo alto y ancho para todas las fotos de la galería y del carrusel:
+   cada foto rellena su hueco con la proporción --galeria-proporcion y se recorta lo que sobre */
+.pf-gallery .pf-envoltorio{
+    width: 100%;                   /* el marco ocupa toda la columna (todas las columnas miden igual) */
+}
+
+.pf-gallery img,
+.pf-carousel .carousel-item img{
+    width: 100%;
+    aspect-ratio: var(--galeria-proporcion);
+    object-fit: cover;
+    object-position: var(--galeria-encuadre);
+}
+
+/* Flechas del carrusel: icono dentro de un círculo oscuro */
+.pf-carousel .carousel-control-prev-icon,
+.pf-carousel .carousel-control-next-icon{
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background-color: var(--carrusel-circulo);
+    background-size: 55%;
+}
+
+.pf-carousel .carousel-control-prev,
+.pf-carousel .carousel-control-next{
+    opacity: 0.9;                  /* Bootstrap las deja al 50%: casi no se veían */
+}
+
+/* Marcadores del carrusel: puntos claros rodeados de un círculo oscuro */
+.pf-carousel .carousel-indicators [data-bs-target]{
+    box-sizing: content-box;
+    width: var(--carrusel-marcador);
+    height: var(--carrusel-marcador);
+    margin: 0 0.3rem;
+    border: 3px solid var(--carrusel-circulo);
+    border-radius: 50%;
+    background-clip: padding-box;
 }
 
 /* ============================================================
