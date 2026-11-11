@@ -13,30 +13,36 @@
     </head>
 
     <body class="container">
-        <header class="d-flex justify-content-center navbar">
-            <h1 class="pf-heading py-2 px-4">Sobre mi</h1>
-            <a class="pf-back-btn" href="../index.html">
-                <img src="https://img.icons8.com/?size=100&id=26194&format=png&color=000000" alt="">
-            </a>
+        <a class="pf-back-btn" href="../index.html">
+            <img src="https://img.icons8.com/?size=100&id=26194&format=png&color=000000" alt="">
+        </a>
+
+        <!-- CARTEL de cabecera (.pf-cartel, variables --cartel-* del css) -->
+        <header class="pf-cartel pf-cartel-pagina">
+            <h1>Sobre mi</h1>
         </header>
 
-        <div class="p-3 gap-5 vstack my-4 mx-2 mx-md-5 pf-board rounded-2">
+        <div class="p-3 gap-5 vstack mb-4 mx-2 mx-md-5 pf-board pf-texto-negro rounded-2">
             <article class="row g-5 align-items-center">
-                <div class="col-12 col-md d-flex align-items-center">
-                    <p>Bienvenido a mi portfolio. Soy Darío, un Game Designer con pasión por los videojuegos y un torrente imparable de creatividad. Me llena crear experiencias atrevidas que desafían las normas establecidas, especialmente si las uno con elementos poco convencionales de otras disciplinas, como las matemáticas o el teatro. Soy una persona tranquila y constante con sus proyectos que busca potenciar lo mejor de cada experiencia.
+                <div class="col-12 col-lg d-flex align-items-center">
+                    <div class="pf-folio w-100">
+                        <p>Bienvenido a mi portfolio. Soy Darío, un Game Designer con pasión por los videojuegos y un torrente imparable de creatividad. Me llena crear experiencias atrevidas que desafían las normas establecidas, especialmente si las uno con elementos poco convencionales de otras disciplinas, como las matemáticas o el teatro. Soy una persona tranquila y constante con sus proyectos que busca potenciar lo mejor de cada experiencia.
                         
-                    <br><br>
-                    Actualmente busco empleo de Junior Game Designer o Junior Producer. Previamente he trabajado como Game y Level Designer y Producer en el equipo <a href="https://gamehunters.es/noticias/flipper-on-recoil-chomperz-game-hunters" class="text-link">Chomperz</a> y he creado múltiples proyectos personales que podrás encontrar en mi <a href="https://dariodeveloper.itch.io" class="text-link">itch.io</a> 
+                        <br><br>
+                        Actualmente busco empleo de Junior Game Designer o Junior Producer. Previamente he trabajado como Game y Level Designer y Producer en el equipo <a href="https://gamehunters.es/noticias/flipper-on-recoil-chomperz-game-hunters" class="text-link">Chomperz</a> y he creado múltiples proyectos personales que podrás encontrar en mi <a href="https://dariodeveloper.itch.io" class="text-link">itch.io</a> 
 
-                    <br><br>
-                    También trabajo de profesor de diseño de videojuegos o de programación en campamentos de verano y extrascolares con alumnos de 8 a 16 años en <a href="https://lifethree.org" class="text-link">Lifethree</a>, <a href="https://www.logiscool.com/en/" class="text-link">Logiscool</a> o <a href="https://camptecnologico.com/robotica-educativa/" class="text-link">Camptecnologico</a>
-                    </p>
+                        <br><br>
+                        También trabajo de profesor de diseño de videojuegos o de programación en campamentos de verano y extrascolares con alumnos de 8 a 16 años en <a href="https://lifethree.org" class="text-link">Lifethree</a>, <a href="https://www.logiscool.com/en/" class="text-link">Logiscool</a> o <a href="https://camptecnologico.com/robotica-educativa/" class="text-link">Camptecnologico</a>
+                        </p>
+                    </div>
                 </div>
-                <div class="col-12 col-lg-4 d-flex justify-content-center align-items-center">
-                    <img src="../media/img/Yo/Darío Navarro.png" class="pf-marco img-fluid" style="max-height: 400px;" alt="Imagen de Darío">
+                <!-- pf-igualar-alto: la foto mide lo mismo que la hoja de texto de al lado.
+                     --igualar-ancho-max: la columna de la foto no pasa de ~1/3 del ancho -->
+                <div class="col-12 col-lg-4 pf-igualar-alto" style="--igualar-ancho-max: 0.34;">
+                    <img src="../media/img/Yo/Darío Navarro.png" class="pf-marco" alt="Imagen de Darío">
                 </div>
             </article>
-            <article class="">
+            <article class="pf-folio">
                 <p>
                 Cuando no estoy diseñando videojuegos me puedes encontrar haciendo teatro en <a href="https://www.cuartapared.es" class="text-link">La Escuela de Teatro Cuarta Pared</a>, jugando títulos como Disco Elysium, Celeste o The Binding Of Isaac o participando en partidas de Dragones y Mazmorras. Creo videojuegos desde los 14 años (desde los 20 de manera profesional) y no tengo intención de parar pronto.
                 </p>

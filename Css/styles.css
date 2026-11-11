@@ -9,8 +9,8 @@
    ║  1. FONDO TOTAL   (nubes, se repite en vertical)                 ║
    ║  2. TABLÓN        (tablones de madera, se repite en vertical)    ║
    ║  3. FOLIO         (hoja de papel: esquinas + lados + centro)     ║
-   ║  4. TITULAR       (tablón grande de la cabecera)                 ║
-   ║  5. PLACA         (rótulo oscuro dentro del titular)             ║
+   ║  3b. MARCO        (hoja azul para enmarcar fotos)                ║
+   ║  4. CARTEL        (cabecera de todas las páginas, por piezas)    ║
    ╚══════════════════════════════════════════════════════════════════╝ */
 
 :root{
@@ -91,6 +91,7 @@
 
     --folio-padding: 0.75rem;      /* espacio entre el borde del papel y el contenido (UN solo valor) */
     --folio-respaldo: transparent; /* color provisional del papel mientras no hay arte (ej: khaki). Con arte: transparent */
+    --folio-color-texto: black;    /* color del texto sobre las hojas (los carteles usan --cartel-color-texto) */
     --folio-texto-lineas: 2;       /* (.pf-card) líneas de texto reservadas bajo la imagen para que todas midan igual */
 
     /* Chincheta / clip (OPCIONAL): imagen suelta encima del folio, centrada arriba.
@@ -119,30 +120,32 @@
     --galeria-encuadre: center;    /* qué parte de la foto se conserva al recortar (center, top, 50% 20%...) */
     --carrusel-circulo: rgba(20, 12, 8, 0.65);  /* círculo oscuro de flechas y marcadores */
     --carrusel-marcador: 0.7rem;   /* tamaño de cada marcador (punto) */
+    --igualar-ancho-max: 0.6;                          /* (.pf-igualar-alto) ancho máximo que puede tomar la columna de imágenes (0.6 = 60% de la fila) */
+    --igualar-recorte-max: 0.1;                       /* (.pf-igualar-alto) recorte máximo de cada imagen (0.1 = 10% de su superficie) */
+    --igualar-alto-apilado: clamp(240px, 70vw, 420px);  /* (.pf-igualar-alto) alto máximo de sus imágenes cuando se apila (móvil) */
+    --galeria-2x2-alto-min: 0px;   /* (plantilla) alto mínimo de la galería 2x2 por si el texto es muy corto (ej: 300px) */
 
     /* ══════════════════════════════════════════════════════════════
-       4. TITULAR · tablón grande de la cabecera
+       4. CARTEL (.pf-cartel) · cabecera de TODAS las páginas
+       Mismo sistema por piezas que el FOLIO (esquina abajo-izquierda +
+       lado de abajo + centro, recortadas al dibujo). Mientras no haya arte
+       (none) se ve un rectángulo marrón oscuro: solo hay que sustituir las
+       3 imágenes y sus medidas reales.
        ══════════════════════════════════════════════════════════════ */
-    --titular-img: url("../media/img/titular.png");    /* ← IMAGEN */
-    --titular-slice: 25% 4%;       /* ← % de la IMAGEN que es borde: ARRIBA/ABAJO  IZQUIERDA/DERECHA (o 4 valores) */
-    --titular-borde: 1.5rem 2rem;  /* ← borde en pantalla: ARRIBA/ABAJO  IZQUIERDA/DERECHA */
-    --titular-padding: 0.5rem;     /* espacio entre el borde y la placa */
-    --titular-repeat: stretch;
-    --titular-respaldo: #8b5a2b;   /* ⚠ TEMPORAL (color madera) para ver el texto. Con arte: transparent */
-    --titular-logo: 100px;         /* tamaño del logo en escritorio (en móvil se reduce solo) */
-    --carteles-separacion: 2.5rem; /* espacio entre el titular y el tablón de debajo */
-
-    /* ══════════════════════════════════════════════════════════════
-       5. PLACA · rótulo oscuro dentro del titular (lleva el texto)
-       ══════════════════════════════════════════════════════════════ */
-    --placa-img: url("../media/img/placa.png");        /* ← IMAGEN */
-    --placa-slice: 25% 4%;         /* ← % de la IMAGEN que es borde: ARRIBA/ABAJO  IZQUIERDA/DERECHA (o 4 valores) */
-    --placa-borde: 1rem 1.5rem;    /* ← borde en pantalla: ARRIBA/ABAJO  IZQUIERDA/DERECHA */
-    --placa-padding: 1rem 1.5rem;  /* espacio entre el borde y el texto */
-    --placa-repeat: stretch;
-    --placa-respaldo: #2b1d14;     /* ⚠ TEMPORAL (marrón oscuro) para ver el texto. Con arte: transparent */
-    --placa-color-texto: white;
+    --cartel-img-esquina: none;    /* ← IMAGEN 1: esquina abajo-izquierda. Ej: url("../media/img/Deco/Cartel/cartelesquina.png") */
+    --cartel-img-lado:    none;    /* ← IMAGEN 2: lado de abajo */
+    --cartel-img-centro:  none;    /* ← IMAGEN 3: centro */
+    --cartel-esquina-tam: 520;     /* medidas reales de los archivos (solo el número) */
+    --cartel-lado-ancho: 1796;
+    --cartel-lado-alto: 520;
+    --cartel-escala: 0.06;         /* 520 × 0.06 ≈ 31px de esquina en pantalla */
+    --cartel-borde-dibujo: 0.35;   /* parte de la pieza ocupada por el borde irregular (0 a 1) */
+    --cartel-padding: 0.75rem 1.5rem; /* espacio entre el borde del cartel y el texto */
+    --cartel-respaldo: #2b1d14;    /* marrón oscuro mientras no hay arte (queda debajo del centro) */
+    --cartel-color-texto: #fff3dc;
     --fuente-titular: inherit;     /* ej: "Patrick Hand", cursive */
+    --titular-logo: 100px;         /* tamaño del logo del index en escritorio (en móvil se reduce solo) */
+    --carteles-separacion: 2.5rem; /* espacio entre el cartel de cabecera y lo de debajo */
 
     /* ══════════════════════════════════════════════════════════════
        6. PROYECTOS · tablones alternos (HTML/proyectos.html)
@@ -198,46 +201,6 @@ h1{
 }
 
 /* ============================================================
-   MOTOR 9-SLICE (titular y placa)
-   ⚠ NO TOCAR. Las tres piezas comparten este bloque; cada una
-   solo se diferencia en sus variables (más abajo).
-   ============================================================ */
-.pf-titular,
-.pf-placa{
-    box-sizing: border-box;
-    border-style: solid;
-    border-color: transparent;               /* si falta la imagen no sale un borde negro */
-    border-width: var(--s9-borde);
-    border-image-source: var(--s9-img);
-    border-image-slice: var(--s9-slice) fill;
-    border-image-repeat: var(--s9-repeat);
-    padding: var(--s9-padding);
-    background-color: var(--s9-respaldo);
-    background-clip: padding-box;
-}
-
-/* Cada clase "enchufa" sus variables al motor */
-.pf-titular{
-    --s9-img: var(--titular-img);
-    --s9-slice: var(--titular-slice);
-    --s9-borde: var(--titular-borde);
-    --s9-padding: var(--titular-padding);
-    --s9-repeat: var(--titular-repeat);
-    --s9-respaldo: var(--titular-respaldo);
-}
-
-.pf-placa{
-    --s9-img: var(--placa-img);
-    --s9-slice: var(--placa-slice);
-    --s9-borde: var(--placa-borde);
-    --s9-padding: var(--placa-padding);
-    --s9-repeat: var(--placa-repeat);
-    --s9-respaldo: var(--placa-respaldo);
-    color: var(--placa-color-texto);
-    font-family: var(--fuente-titular);
-}
-
-/* ============================================================
    2. TABLÓN DE MADERA (.pf-board)
    ⚠ NO TOCAR. Todo se ajusta desde las variables --tablon-*
    ============================================================ */
@@ -277,6 +240,12 @@ h1{
     color: #fff3dc;               /* texto claro para que se lea sobre el marrón */
 }
 
+/* Tablón con texto negro (aunque no haya arte). Uso: <div class="pf-board pf-texto-negro"> */
+.pf-board.pf-texto-negro,
+.pf-sin-tablon .pf-board.pf-texto-negro{
+    color: black;
+}
+
 /* Enlaces sueltos sobre el tablón: mismo color claro y subrayados (las hojas .pf-card no cambian) */
 .pf-sin-tablon .pf-board a:not(.pf-card){
     color: inherit;
@@ -286,10 +255,6 @@ h1{
 /* ============================================================
    Layout
    ============================================================ */
-/* Separación entre el titular (cartel de arriba) y el siguiente cartel */
-.pf-titular{
-    margin-bottom: var(--carteles-separacion);
-}
 
 .pf-header{
     display: flex;
@@ -340,6 +305,7 @@ h1{
     position: relative;
     isolation: isolate;
     box-sizing: border-box;
+    color: var(--folio-color-texto);
     min-width: calc(2 * var(--_max));              /* nunca más pequeño que dos esquinas */
     min-height: calc(2 * var(--_max));
 
@@ -372,7 +338,8 @@ h1{
 .pf-folio-pieza{
     position: absolute;
     inset: calc(-1 * var(--_bor));     /* cubre TODO el folio, también el borde */
-    z-index: 0;
+    z-index: -1;                       /* por DEBAJO del contenido (también del texto suelto, ej: <p class="pf-folio">)
+                                          y encima del centro: el folio tiene isolation:isolate */
     pointer-events: none;
     container-type: size;              /* permite usar cqw/cqh (medidas del folio) en los lados verticales */
 }
@@ -490,14 +457,55 @@ h1{
     --folio-padding:     var(--marco-padding);
 }
 
+/* ============================================================
+   CARTEL (.pf-cartel) · cabecera por piezas (mismo motor que el FOLIO)
+   Uso: <header class="pf-cartel"> ... </header>  (Js/script.js crea las piezas)
+     · + pf-cartel-pagina → cartel pequeño y centrado con el título de la página
+     · + pf-header        → reparte el contenido en fila (nombre · logo · rol), como en el index
+   Se ajusta con las variables --cartel-* del :root.
+   ============================================================ */
+.pf-cartel{
+    --folio-img-esquina: var(--cartel-img-esquina);
+    --folio-img-lado:    var(--cartel-img-lado);
+    --folio-img-centro:  var(--cartel-img-centro);
+    --folio-esquina-tam: var(--cartel-esquina-tam);
+    --folio-lado-ancho:  var(--cartel-lado-ancho);
+    --folio-lado-alto:   var(--cartel-lado-alto);
+    --folio-escala:      var(--cartel-escala);
+    --folio-borde-dibujo: var(--cartel-borde-dibujo);
+    --folio-padding:     var(--cartel-padding);
+    --folio-respaldo:    var(--cartel-respaldo);
+    color: var(--cartel-color-texto);
+    font-family: var(--fuente-titular);
+    margin-bottom: var(--carteles-separacion);
+}
+
+/* Sin arte de cartel (--cartel-img-esquina: none): Js/script.js pone pf-sin-cartel en <html>
+   y el marrón ocupa toda la caja, para que quede alineado con el resto de elementos */
+.pf-sin-cartel .pf-cartel{
+    background-clip: border-box;
+}
+
+.pf-cartel-pagina{
+    width: fit-content;
+    max-width: calc(100% - 2 * clamp(60px, 12%, 90px));   /* deja sitio al botón de volver */
+    margin-top: 1rem;
+    margin-inline: auto;
+}
+
+.pf-cartel-pagina > h1{
+    margin: 0;
+    font-size: clamp(1.5rem, 5vw, 2.5rem);
+    text-align: center;
+}
+
 /* Envoltorio que crea el JS alrededor de una <img> con .pf-folio o .pf-marco:
    ocupa lo que la imagen (sin pasarse del ancho disponible) */
 .pf-envoltorio{
     display: inline-block;
     max-width: 100%;
     vertical-align: middle;
-    align-self: center;            /* dentro de un flex: no se estira, se centra */
-    margin-inline: auto;
+    align-self: center;            /* dentro de un flex: no se estira, se centra en vertical */
 }
 
 .pf-envoltorio > img{
@@ -513,12 +521,14 @@ h1{
 
 /* ── MISMO TAMAÑO PARA TODAS LAS TARJETAS DE UNA FILA ──
    Las columnas se estiran a la altura de la más alta y cada tarjeta rellena su columna.
-   (!important porque Bootstrap lo usa en .align-items-center) */
-.pf-board .row{
+   (!important porque Bootstrap lo usa en .align-items-center)
+   Solo afecta a filas que contienen tarjetas: antes se aplicaba a TODAS las filas de un
+   tablón y rompía otras cosas (mostraba el carrusel en escritorio, ponía párrafos en columnas). */
+.pf-board .row:has(> * > .pf-card){
     align-items: stretch !important;
 }
 
-.pf-board .row > *{
+.pf-board .row > :has(> .pf-card){
     display: flex;
 }
 
@@ -551,22 +561,6 @@ h1{
     width: 100%;
     min-height: calc(var(--folio-texto-lineas) * 1.5em);   /* reserva N líneas de texto */
     font-size: var(--font-size-lg);
-    text-align: center;
-}
-
-/* ============================================================
-   TITULAR DE PÁGINA (.pf-titular-pagina) · cartel pequeño centrado
-   Uso: <header class="pf-titular pf-titular-pagina"><h1 class="pf-placa">Título</h1></header>
-   ============================================================ */
-.pf-titular-pagina{
-    width: fit-content;
-    max-width: calc(100% - 2 * clamp(60px, 12%, 90px));   /* deja sitio al botón de volver */
-    margin: 1rem auto var(--carteles-separacion);
-}
-
-.pf-titular-pagina > .pf-placa{
-    margin: 0;
-    font-size: clamp(1.5rem, 5vw, 2.5rem);
     text-align: center;
 }
 
@@ -663,6 +657,96 @@ h1{
     object-position: var(--galeria-encuadre);
 }
 
+/* Galería 2x2 (plantilla de proyecto): ocupa EXACTAMENTE el alto de la columna de al lado.
+   contain: size → la galería no empuja el alto de la fila; se estira al alto del texto. */
+.pf-galeria-2x2{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 0.75rem;
+    contain: size;
+    min-height: var(--galeria-2x2-alto-min);
+}
+
+.pf-galeria-2x2 > img{
+    width: 100%;
+    height: 100%;                  /* las 4 celdas son iguales → las 4 fotos miden lo mismo */
+    min-height: 0;
+    aspect-ratio: auto;
+}
+
+/* ============================================================
+   IGUALAR ALTO (.pf-igualar-alto) · columna que intenta medir lo mismo que la de al lado
+   Uso: en la COLUMNA con imágenes/vídeo que va junto a otra (ej: texto).
+     <div class="col-12 col-lg-4 pf-igualar-alto"> <img class="pf-marco" ...> </div>
+   Cuándo se apila lo deciden sus clases col-* (ej: col-md-5 → lado a lado desde tablet).
+   La columna de texto vecina debe ser flexible (col-md, col-lg...) para poder estrecharse.
+   PRIORIDAD = mantener la escala de las imágenes:
+   · Lado a lado: Js/script.js calcula para cada imagen
+         alto = clamp(alto que recorta el máximo por un lado,
+                      alto que iguala a la columna vecina,
+                      alto que recorta el máximo por el otro)
+     Nunca se recorta más de --igualar-recorte-max de la imagen y el recorte es
+     SIEMPRE desde el centro.
+       - Si sobra alto: la imagen se escala entera (más estrecha, misma proporción).
+       - Si falta alto: la columna de imágenes se ENSANCHA (el texto se estrecha y
+         crece) hasta que encajan, como mucho hasta --igualar-ancho-max de la fila.
+   · Apilado: las imágenes van a su tamaño natural (sin recorte), con alto máximo
+     --igualar-alto-apilado, centradas.
+   Varias imágenes que se reparten el hueco: mételas en <div class="pf-relleno">.
+   ============================================================ */
+.pf-igualar-alto{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.pf-igualar-alto img{
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: var(--igualar-alto-apilado);
+}
+
+.pf-igualar-alto video{
+    width: 100%;
+}
+
+.pf-relleno{
+    display: grid;
+    gap: 0.75rem;
+    width: 100%;
+    justify-items: center;         /* si el JS estrecha una imagen, queda centrada */
+    align-items: center;
+}
+
+/* Apilada (debajo del texto) en tablet: las imágenes del relleno una al lado de la otra */
+@media (min-width: 768px){
+    .pf-igualar-alto:not(.pf-lado-a-lado) .pf-relleno{
+        grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+    }
+}
+
+/* Lado a lado con su vecina: Js/script.js pone la clase pf-lado-a-lado cuando detecta
+   que las dos columnas están en la misma fila (lo deciden las clases col-* de Bootstrap) */
+.pf-igualar-alto.pf-lado-a-lado{
+    align-items: stretch;
+}
+
+.pf-igualar-alto.pf-lado-a-lado > .pf-envoltorio{
+    width: 100%;
+}
+
+/* Ancho completo; el alto (y si hace falta el ancho) lo pone Js/script.js */
+.pf-igualar-alto.pf-lado-a-lado img{
+    width: 100%;
+    max-height: none;
+    object-fit: cover;
+    object-position: center;           /* el centro de la foto siempre en el centro del marco */
+}
+
 /* Flechas del carrusel: icono dentro de un círculo oscuro */
 .pf-carousel .carousel-control-prev-icon,
 .pf-carousel .carousel-control-next-icon{
@@ -747,13 +831,10 @@ h1{
     }
 }
 
-/* Móvil: bordes del titular y la placa más finos para que quepa el contenido */
+/* Móvil: cartel de cabecera con menos margen para que quepa el contenido */
 @media (max-width: 576px){
     :root{
-        --titular-borde: 0.75rem 1rem;
-        --titular-padding: 0.25rem;
-        --placa-borde: 0.5rem 0.75rem;
-        --placa-padding: 0.5rem 0.75rem;
+        --cartel-padding: 0.5rem 0.75rem;
         --carteles-separacion: 1.5rem;
     }
 }

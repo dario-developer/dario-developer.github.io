@@ -13,43 +13,39 @@
     </head>
 
     <body class="container">
-        <header class="d-flex justify-content-center navbar">
-            <h1 class="pf-heading py-2 px-4">Plantilla proyectos</h1>
-            <a class="pf-back-btn" href="proyectos.html">
-                <img src="https://img.icons8.com/?size=100&id=26194&format=png&color=000000" alt="">
-            </a>
+        <a class="pf-back-btn" href="proyectos.html">
+            <img src="https://img.icons8.com/?size=100&id=26194&format=png&color=000000" alt="">
+        </a>
+
+        <!-- CARTEL de cabecera (.pf-cartel, variables --cartel-* del css) -->
+        <header class="pf-cartel pf-cartel-pagina">
+            <h1>Plantilla proyectos</h1>
         </header>
 
-        <div class="d-flex justify-content-center px-3 py-4 gap-3 gap-sm-5 vstack my-4 mx-2 mx-md-5 pf-board rounded-2">
+        <div class="d-flex justify-content-center px-3 py-4 gap-3 gap-sm-5 vstack mb-4 mx-2 mx-md-5 pf-board rounded-2">
             
             <!-- Video -->
-            <div class="col-12 text-center">
-                <video class="img-fluid" controls>
-                    <source class="img-fluid" src="../media/video/keynote-1.mp4">
-                </video>       
+            <div>
+                <video class="w-100 d-block" controls>
+                    <source src="../media/video/keynote-1.mp4">
+                </video>
             </div>
-            <article class="row g-3 gap-3 gap-sm-5 align-items-center justify-content-center">
-                <div class="row col-12 col-md g-3 justify-content-center">
-                    <p class="text-center">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Dolores, minus. Quod voluptatem nisi aspernatur necessitatibus libero. Laudantium, laborum facilis sequi perferendis similique eligendi nam quo laboriosam vitae temporibus. Possimus, blanditiis? Lorem ipsum dolor sit amet consectetur, adipisicing elit. Animi tenetur autem repudiandae quaerat veritatis nemo. Quam aliquam ea officiis voluptatem? Est aut dignissimos facilis repellendus fugiat quisquam blanditiis nemo quis. Lorem ipsum dolor sit amet consectetur, adipisicing elit. Recusandae, animi nam quibusdam commodi vitae ea, consectetur nemo minima libero excepturi beatae aliquam deleniti debitis quas reprehenderit voluptate voluptatibus? Nisi, quo. Lorem, ipsum dolor sit amet consectetur adipisicing elit. Cumque fuga error quidem excepturi! Omnis alias perspiciatis expedita consequatur esse optio adipisci similique minima aperiam soluta quis id, dolore, maxime unde?</p>
-                    
-                    <p class="text-center">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Dolores, minus. Quod voluptatem nisi aspernatur necessitatibus libero. Laudantium, laborum facilis sequi perferendis similique eligendi nam quo laboriosam vitae temporibus. Possimus, blanditiis? Lorem ipsum dolor sit amet consectetur, adipisicing elit. Animi tenetur autem repudiandae quaerat veritatis nemo. Quam aliquam ea officiis voluptatem? Est aut dignissimos facilis repellendus fugiat quisquam blanditiis nemo quis. Lorem ipsum dolor sit amet consectetur, adipisicing elit. Recusandae, animi nam quibusdam commodi vitae ea, consectetur nemo minima libero excepturi beatae aliquam deleniti debitis quas reprehenderit voluptate voluptatibus? Nisi, quo. Lorem, ipsum dolor sit amet consectetur adipisicing elit. Cumque fuga error quidem excepturi! Omnis alias perspiciatis expedita consequatur esse optio adipisci similique minima aperiam soluta quis id, dolore, maxime unde?</p>
-
+            <!-- Texto (izquierda) y vídeo + 2 imágenes (derecha). Las hojas .pf-folio van DENTRO de las columnas. -->
+            <article class="row g-4 align-items-center">
+                <div class="col-12 col-lg d-flex flex-column gap-3">
+                    <p class="text-center pf-folio">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Dolores, minus. Quod voluptatem nisi aspernatur necessitatibus libero. Laudantium, laborum facilis sequi perferendis similique eligendi nam quo laboriosam vitae temporibus. Possimus, blanditiis? Lorem ipsum dolor sit amet consectetur, adipisicing elit. Animi tenetur autem repudiandae quaerat veritatis nemo. Quam aliquam ea officiis voluptatem? Est aut dignissimos facilis repellendus fugiat quisquam blanditiis nemo quis. Lorem ipsum dolor sit amet consectetur, adipisicing elit. Recusandae, animi nam quibusdam commodi vitae ea, consectetur nemo minima libero excepturi beatae aliquam deleniti debitis quas reprehenderit voluptate voluptatibus? Nisi, quo. Lorem, ipsum dolor sit amet consectetur adipisicing elit. Cumque fuga error quidem excepturi! Omnis alias perspiciatis expedita consequatur esse optio adipisci similique minima aperiam soluta quis id, dolore, maxime unde?</p>
+                    <p class="text-center pf-folio">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Dolores, minus. Quod voluptatem nisi aspernatur necessitatibus libero. Laudantium, laborum facilis sequi perferendis similique eligendi nam quo laboriosam vitae temporibus. Possimus, blanditiis? Lorem ipsum dolor sit amet consectetur, adipisicing elit. Animi tenetur autem repudiandae quaerat veritatis nemo. Quam aliquam ea officiis voluptatem? Est aut dignissimos facilis repellendus fugiat quisquam blanditiis nemo quis. Lorem ipsum dolor sit amet consectetur, adipisicing elit. Recusandae, animi nam quibusdam commodi vitae ea, consectetur nemo minima libero excepturi beatae aliquam deleniti debitis quas reprehenderit voluptate voluptatibus? Nisi, quo. Lorem, ipsum dolor sit amet consectetur adipisicing elit. Cumque fuga error quidem excepturi! Omnis alias perspiciatis expedita consequatur esse optio adipisci similique minima aperiam soluta quis id, dolore, maxime unde?</p>
                 </div>
 
-                <div class="col-12 col-lg-6 row justify-content-evenly align-items-center p-0 p-md-2">
+                <!-- pf-igualar-alto: vídeo + imágenes miden lo mismo que el texto de al lado -->
+                <div class="col-12 col-lg-6 pf-igualar-alto">
                     <!-- Video -->
-                    <div>
-                        <video class="img-fluid" controls>
-                            <source class="img-fluid" src="../media/video/keynote-1.mp4">
-                        </video>
-                    </div>
-                    <div class="row g-3 align-items-center text-center">
-                        <div class="img-fluid col-12 col-xl-6 align-items-center">
-                            <img class="img-fluid" src="https://picsum.photos/500" alt="">
-                        </div>
-                        <div class="img-fluid col-12 col-xl-6 text-center">
-                            <img class="img-fluid" src="https://picsum.photos/500" alt="">
-                        </div>
+                    <video controls>
+                        <source src="../media/video/keynote-1.mp4">
+                    </video>
+                    <div class="pf-relleno">
+                        <img src="https://picsum.photos/seed/t1/500" alt="">
+                        <img src="https://picsum.photos/seed/t2/500" alt="">
                     </div>
                 </div>
             </article>
@@ -57,24 +53,22 @@
             
 
             <!-- GALERÍA -->
-            <article class="row g-4 gap-lg-0 align-items-center justify-content-center">
-                <div class="row g-2 align-items-center justify-content-center pf-gallery col-6">
-                    <img class="img-fluid col-6" src="https://picsum.photos/500" alt="">
-                    <img class="img-fluid col-6" src="https://picsum.photos/500" alt="">
-                    <img class="img-fluid col-6" src="https://picsum.photos/500" alt="">
-                    <img class="img-fluid col-6" src="https://picsum.photos/500" alt="">
+            <!-- Escritorio: galería 2x2 (izquierda) con el mismo alto que el texto (derecha).
+                 Móvil: la galería se oculta y aparece el carrusel debajo del texto. -->
+            <article class="row g-4 align-items-stretch justify-content-center">
+                <div class="col-lg-6 pf-gallery pf-galeria-2x2">
+                    <img src="https://picsum.photos/seed/p1/500" alt="Imagen de galería 1">
+                    <img src="https://picsum.photos/seed/p2/500" alt="Imagen de galería 2">
+                    <img src="https://picsum.photos/seed/p3/500" alt="Imagen de galería 3">
+                    <img src="https://picsum.photos/seed/p4/500" alt="Imagen de galería 4">
                 </div>
 
-                
-                
-                <div class="col-12 col-lg-6">
-                    <p class="text-center">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Dolores, minus. Quod voluptatem nisi aspernatur necessitatibus libero. Laudantium, laborum facilis sequi perferendis similique eligendi nam quo laboriosam vitae temporibus. Possimus, blanditiis? Lorem ipsum dolor sit amet consectetur, adipisicing elit. Animi tenetur autem repudiandae quaerat veritatis nemo. Quam aliquam ea officiis voluptatem? Est aut dignissimos facilis repellendus fugiat quisquam blanditiis nemo quis.</p>
-                    <br>
-                    <p class="text-center">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Dolores, minus. Quod voluptatem nisi aspernatur necessitatibus libero. Laudantium, laborum facilis sequi perferendis similique eligendi nam quo laboriosam vitae temporibus. Possimus, blanditiis? Lorem ipsum dolor sit amet consectetur, adipisicing elit. Animi tenetur autem repudiandae quaerat veritatis nemo. Quam aliquam ea officiis voluptatem? Est aut dignissimos facilis repellendus fugiat quisquam blanditiis nemo quis.</p>
+                <div class="col-12 col-lg-6 d-flex align-items-center">
+                    <p class="text-center pf-folio">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Dolores, minus. Quod voluptatem nisi aspernatur necessitatibus libero. Laudantium, laborum facilis sequi perferendis similique eligendi nam quo laboriosam vitae temporibus. Possimus, blanditiis? Lorem ipsum dolor sit amet consectetur, adipisicing elit. Animi tenetur autem repudiandae quaerat veritatis nemo. Quam aliquam ea officiis voluptatem? Est aut dignissimos facilis repellendus fugiat quisquam blanditiis nemo quis.</p>
                 </div>
 
-                <!-- CARRUSEL-->
-                <div id="carouselGaleria" class="carousel slide pf-carousel" data-bs-ride="carousel">
+                <!-- CARRUSEL (solo móvil) -->
+                <div id="carouselGaleria" class="carousel slide pf-carousel col-12" data-bs-ride="carousel">
                     <div class="carousel-indicators">
                         <button type="button" data-bs-target="#carouselGaleria" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Imagen de galería 1"></button>
                         <button type="button" data-bs-target="#carouselGaleria" data-bs-slide-to="1" aria-label="Imagen de galería 2"></button>
@@ -112,6 +106,9 @@
         </div>
 
         <!-- Bootstrap JS (carrousel) -->
+        <!-- JS de los carteles y hojas (crea las piezas) -->
+        <script src="../Js/script.js"></script>
+
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     </body>
 
