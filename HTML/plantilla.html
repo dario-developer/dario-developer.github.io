@@ -26,7 +26,7 @@
             
             <!-- Video -->
             <div>
-                <video class="w-100 d-block" controls>
+                <video class="w-100 d-block pf-marco" controls>
                     <source src="../media/video/keynote-1.mp4">
                 </video>
             </div>
@@ -40,12 +40,12 @@
                 <!-- pf-igualar-alto: vídeo + imágenes miden lo mismo que el texto de al lado -->
                 <div class="col-12 col-lg-6 pf-igualar-alto">
                     <!-- Video -->
-                    <video controls>
+                    <video class="pf-marco" controls>
                         <source src="../media/video/keynote-1.mp4">
                     </video>
-                    <div class="pf-relleno">
-                        <img src="https://picsum.photos/seed/t1/500" alt="">
-                        <img src="https://picsum.photos/seed/t2/500" alt="">
+                    <div class="pf-relleno" style="--igualar-ancho-max: 0.34;">
+                        <img src="https://picsum.photos/seed/t1/500" alt="" class="pf-marco">
+                        <img src="https://picsum.photos/seed/t2/500" alt="" class="pf-marco">
                     </div>
                 </div>
             </article>
@@ -57,10 +57,10 @@
                  Móvil: la galería se oculta y aparece el carrusel debajo del texto. -->
             <article class="row g-4 align-items-stretch justify-content-center">
                 <div class="col-lg-6 pf-gallery pf-galeria-2x2">
-                    <img src="https://picsum.photos/seed/p1/500" alt="Imagen de galería 1">
-                    <img src="https://picsum.photos/seed/p2/500" alt="Imagen de galería 2">
-                    <img src="https://picsum.photos/seed/p3/500" alt="Imagen de galería 3">
-                    <img src="https://picsum.photos/seed/p4/500" alt="Imagen de galería 4">
+                    <img src="https://picsum.photos/seed/p1/500" alt="Imagen de galería 1" class="pf-marco">
+                    <img src="https://picsum.photos/seed/p2/500" alt="Imagen de galería 2" class="pf-marco">
+                    <img src="https://picsum.photos/seed/p3/500" alt="Imagen de galería 3" class="pf-marco">
+                    <img src="https://picsum.photos/seed/p4/500" alt="Imagen de galería 4" class="pf-marco">
                 </div>
 
                 <div class="col-12 col-lg-6 d-flex align-items-center">
@@ -68,7 +68,7 @@
                 </div>
 
                 <!-- CARRUSEL (solo móvil) -->
-                <div id="carouselGaleria" class="carousel slide pf-carousel col-12" data-bs-ride="carousel">
+                <div id="carouselGaleria" class="carousel slide pf-carousel pf-marco col-12" data-bs-ride="carousel">
                     <div class="carousel-indicators">
                         <button type="button" data-bs-target="#carouselGaleria" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Imagen de galería 1"></button>
                         <button type="button" data-bs-target="#carouselGaleria" data-bs-slide-to="1" aria-label="Imagen de galería 2"></button>

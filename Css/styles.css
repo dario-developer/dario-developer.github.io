@@ -26,14 +26,23 @@
     --fondo-respaldo: rgb(176, 178, 220);  /* color de cielo mientras carga / si falta la imagen */
 
     /* ══════════════════════════════════════════════════════════════
-       2. TABLÓN · tablones de madera
-       Necesita DOS imágenes del mismo tile (ver documentación).
+       2. TABLÓN · tablones de madera (por piezas, "9-slice")
+       UNA sola imagen montada a partir de las piezas de media/img/Deco/Tablón
+       (Esquina2, Centro superior-interior, Centro de lados y Medio) con el
+       script generar-tablon-9slice.ps1 de esa misma carpeta:
+           ┌esq┬── borde de arriba ──┬esq┐   ← franja de arriba (no se repite)
+           │lado│  1 tablón (centro) │lado│  ← franja central: se REPITE hacia abajo
+           └esq┴── borde de abajo ───┴esq┘   ← franja de abajo (= arriba volteada)
+       La derecha es el espejo de la izquierda. A lo ancho se estira.
+       Si cambian las piezas, vuelve a ejecutar el script.
        ══════════════════════════════════════════════════════════════ */
-    --tablon-img-bordes: url("../media/img/tablones-tile.png");   /* ← IMAGEN 1: tile completo */
-    --tablon-img-centro: url("../media/img/tablones-centro.png"); /* ← IMAGEN 2: tile sin bordes laterales */
-    --tablon-alto: 778;            /* ← alto en px de la imagen (solo el número) */
-    --tablon-lado: 16;             /* ← ancho en px del borde lateral (solo el número) */
-    --tablon-repeticiones: 1;      /* nº mínimo de tiles (1 tile = 5 tablones) */
+    --tablon-img: url("../media/img/Deco/Tablón/tablon-9slice.png");  /* ← IMAGEN */
+    --tablon-img-borde: 349;       /* ← alto en px (imagen) de la franja de arriba/abajo (lo imprime el script: "slice: 349 150") */
+    --tablon-img-lado: 150;        /* ← ancho en px (imagen) de la columna lateral */
+    --tablon-escala: 0.22;         /* px de pantalla por px de imagen. 1 tablón = 690 × 0.22 ≈ 152px de alto */
+    --tablon-lado: 16;             /* margen lateral en pantalla (px, solo el número) que el contenido deja libre */
+    --tablon-alto: 778;            /* alto mínimo = alto × repeticiones (px) */
+    --tablon-repeticiones: 1;
     --tablon-padding: 40px 32px;   /* margen interior: arriba/abajo  izquierda/derecha */
     --tablon-respaldo: #7a4e2d;    /* color marrón SOLO si las imágenes del tablón no cargan (lo activa Js/script.js) */
 
@@ -151,6 +160,7 @@
        6. PROYECTOS · tablones alternos (HTML/proyectos.html)
        ══════════════════════════════════════════════════════════════ */
     --proyecto-ancho: clamp(500px, 45vw, 900px);  /* ancho del tablón en escritorio */
+    --proyecto-ancho-movil: 88%;                  /* ancho del tablón en móvil (≤ 576px) */
     --proyecto-hoja-ancho: 40%;                  /* ancho de la hoja dentro del tablón */
     --proyecto-tablon-padding: 1rem 1.5rem;      /* margen interior del tablón */
     --proyecto-tablon-repeticiones: 0.5;         /* alto mínimo = 0.5 tiles de madera (~389px) */
@@ -178,6 +188,11 @@ html{
     background-size: var(--fondo-tamano);
     background-position: var(--fondo-posicion);
     background-repeat: repeat-y;
+}
+
+/* Bootstrap pinta el <body> de blanco (--bs-body-bg) y tapaba las nubes */
+body{
+    background-color: transparent;
 }
 
 /* ============================================================
@@ -214,22 +229,20 @@ h1{
     flex-direction: column;
     justify-content: center;
 
-    /* CAPA 1 (encima): bordes laterales irregulares */
+    /* Esquinas fijas, lados de arriba/abajo estirados a lo ancho,
+       lados izquierda/derecha y centro repetidos a lo alto (round = sin cortar tablones) */
     border-style: solid;
     border-color: transparent;
     border-width: 0 calc(var(--tablon-lado) * 1px);
-    border-image-source: var(--tablon-img-bordes);
-    border-image-slice: 0 var(--tablon-lado);
+    border-image-source: var(--tablon-img);
+    border-image-slice: var(--tablon-img-borde) var(--tablon-img-lado) fill;
+    border-image-width:
+        calc(var(--tablon-img-borde) * var(--tablon-escala) * 1px)
+        calc(var(--tablon-img-lado)  * var(--tablon-escala) * 1px);
     border-image-repeat: stretch round;
 
-    /* CAPA 2 (debajo): relleno de madera y líneas divisorias */
-    background-image: var(--tablon-img-centro);
-    background-size: 100% calc(var(--tablon-alto) * 1px);
-    background-repeat: no-repeat round;
-    background-clip: padding-box;
-
     /* ✖ NO añadir aquí: background-color, background (abreviado),
-         border-radius, overflow:hidden ni border-width arriba/abajo. */
+         border-radius ni overflow:hidden. */
 }
 
 /* Sin arte de madera: Js/script.js pone la clase pf-sin-tablon en <html>
@@ -514,6 +527,19 @@ h1{
     height: auto;
 }
 
+/* Vídeo con marco: el marco ocupa todo el ancho disponible y el vídeo lo rellena
+   (alto automático → mantiene su proporción, nunca se deforma) */
+.pf-envoltorio:has(> video){
+    display: block;
+    width: 100%;
+}
+
+.pf-envoltorio > video{
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
 /* ============================================================
    TARJETA (.pf-card) · imagen + texto dentro de un folio
    Uso: <a class="pf-card pf-folio"> ... </a>
@@ -668,10 +694,19 @@ h1{
     min-height: var(--galeria-2x2-alto-min);
 }
 
-.pf-galeria-2x2 > img{
+.pf-galeria-2x2 > img,
+.pf-galeria-2x2 > .pf-envoltorio{
     width: 100%;
     height: 100%;                  /* las 4 celdas son iguales → las 4 fotos miden lo mismo */
     min-height: 0;
+    aspect-ratio: auto;
+}
+
+/* Con marco: la foto rellena el hueco de dentro del marco (se recorta, no se deforma) */
+.pf-galeria-2x2 > .pf-envoltorio > img{
+    width: 100%;
+    height: 100%;
+    max-width: none;
     aspect-ratio: auto;
 }
 
@@ -735,7 +770,10 @@ h1{
     align-items: stretch;
 }
 
-.pf-igualar-alto.pf-lado-a-lado > .pf-envoltorio{
+/* El marco ocupa todo su hueco. Sin esto se encoge al mínimo: la imagen tiene width:100%
+   y un % dentro de una caja que se ajusta a su contenido cuenta como 0. */
+.pf-igualar-alto.pf-lado-a-lado > .pf-envoltorio,
+.pf-igualar-alto.pf-lado-a-lado .pf-relleno > .pf-envoltorio{
     width: 100%;
 }
 
@@ -809,9 +847,10 @@ h1{
         --proyecto-tablon-repeticiones: 0;     /* el tablón se ajusta a su contenido */
         --proyecto-texto-tamano: clamp(0.6rem, 2.9vw, 0.9rem);
 
-        /* Ancho del tablón = el máximo que deja las hojas de tablones alternos
+        /* Ancho del tablón (tablet pequeña) = el máximo que deja las hojas de tablones alternos
            justo una encima de otra (misma columna X), sin cruzarse:
-           (pantalla + 2 × (borde lateral + padding) + hoja) / 2 */
+           (pantalla + 2 × (borde lateral + padding) + hoja) / 2
+           En móvil (≤ 576px) se usa --proyecto-ancho-movil, más abajo. */
         --proyecto-ancho: calc((100% + 2 * (var(--tablon-lado) * 1px + var(--proyecto-pad-x)) + var(--proyecto-hoja-ancho)) / 2);
     }
 
@@ -834,6 +873,9 @@ h1{
 /* Móvil: cartel de cabecera con menos margen para que quepa el contenido */
 @media (max-width: 576px){
     :root{
+        /* Proyectos: tablones más anchos SOLO en móvil, para que quepa el texto
+           (la hoja no cambia; las hojas de tablones alternos ya no quedan en la misma columna) */
+        --proyecto-ancho: var(--proyecto-ancho-movil, 88%);
         --cartel-padding: 0.5rem 0.75rem;
         --carteles-separacion: 1.5rem;
     }

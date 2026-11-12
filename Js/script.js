@@ -8,8 +8,8 @@ function pfFolioIniciar(raiz) {
     var lados = ["arriba", "derecha", "abajo", "izquierda"];
     raiz = raiz || document;
 
-    // 1. Una <img> no puede tener piezas dentro: se envuelve en un <span> que se queda la clase
-    raiz.querySelectorAll("img.pf-folio, img.pf-marco").forEach(function (img) {
+    // 1. Una <img> o <video> no puede tener piezas dentro: se envuelve en un <span> que se queda la clase
+    raiz.querySelectorAll("img.pf-folio, img.pf-marco, video.pf-folio, video.pf-marco").forEach(function (img) {
         var envoltorio = document.createElement("span");
         envoltorio.className = "pf-envoltorio pf-folio" + (img.classList.contains("pf-marco") ? " pf-marco" : "");
         img.classList.remove("pf-folio", "pf-marco");

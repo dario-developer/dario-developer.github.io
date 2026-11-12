@@ -23,8 +23,29 @@
     --barra-cometa-brillo: rgba(140, 200, 255, 0.8);
 }
 
-html, body {
-    background-color: var(--color-bg);
+/* FONDO TOTAL: cielo estrellado en vez de las nubes. Usa el mismo motor que el
+   fondo de nubes (bloque html de styles.css): solo se cambian sus variables. */
+:root{
+    --fondo-img: url("../media/img/Deco/Cielo%20estrellado.png");  /* ← IMAGEN */
+    --fondo-respaldo: var(--color-bg);   /* color mientras carga / si falta la imagen */
+}
+
+/* Aquí no hace scroll la página sino .timeline-container, así que Js/timeline.js
+   copia su scroll en --fondo-scroll-x/-y y el cielo se mueve con él.
+   Escritorio/tablet: el cielo ocupa el alto de la pantalla y se repite hacia la DERECHA. */
+html{
+    background-size: auto 100%;
+    background-repeat: repeat-x;
+    background-position: calc(0px - var(--fondo-scroll-x, 0px)) top;
+}
+
+/* Móvil: ocupa el ancho y se repite hacia ABAJO (como las nubes) */
+@media (max-width: 576px){
+    html{
+        background-size: 100% auto;
+        background-repeat: repeat-y;
+        background-position: left calc(0px - var(--fondo-scroll-y, 0px));
+    }
 }
 
 /* La página ocupa exactamente la pantalla: header arriba y el contenedor

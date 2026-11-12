@@ -11,6 +11,16 @@
         var contenedor = document.querySelector(".timeline-container");
         if (!contenedor) return;
 
+        // El fondo (cielo estrellado de <html>) se desplaza con el contenedor, como si
+        // hiciera scroll la página entera: hacia la derecha en escritorio, hacia abajo en móvil.
+        var raiz = document.documentElement;
+        function moverFondo() {
+            raiz.style.setProperty("--fondo-scroll-x", contenedor.scrollLeft + "px");
+            raiz.style.setProperty("--fondo-scroll-y", contenedor.scrollTop + "px");
+        }
+        contenedor.addEventListener("scroll", moverFondo, { passive: true });
+        moverFondo();
+
         window.addEventListener("wheel", function (e) {
             if (MOVIL.matches || e.ctrlKey) return;                 // móvil o zoom: comportamiento normal
             if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;    // trackpad ya en horizontal: lo deja tal cual
