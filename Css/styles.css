@@ -26,19 +26,30 @@
     --fondo-respaldo: rgb(176, 178, 220);  /* color de cielo mientras carga / si falta la imagen */
 
     /* ══════════════════════════════════════════════════════════════
-       2. TABLÓN · tablones de madera (por piezas, "9-slice")
-       UNA sola imagen montada a partir de las piezas de media/img/Deco/Tablón
+       2. TABLÓN · tablones de madera (por piezas)
+       Dos tiras montadas a partir de las piezas de media/img/Deco/Tablón
        (Esquina2, Centro superior-interior, Centro de lados y Medio) con el
-       script generar-tablon-9slice.ps1 de esa misma carpeta:
-           ┌esq┬── borde de arriba ──┬esq┐   ← franja de arriba (no se repite)
-           │lado│  1 tablón (centro) │lado│  ← franja central: se REPITE hacia abajo
-           └esq┴── borde de abajo ───┴esq┘   ← franja de abajo (= arriba volteada)
+       script generar-tablon.ps1 de esa misma carpeta:
+           ┌esq┬── borde de arriba ──┬esq┐   ← BORDE  (tablon-borde<N>.png)
+           │lado│  1 tablón (centro) │lado│  ← CENTRO (tablon-centro<N>.png): se REPITE hacia abajo
+           └esq┴── borde de abajo ───┴esq┘   ← BORDE volteado
        La derecha es el espejo de la izquierda. A lo ancho se estira.
-       Si cambian las piezas, vuelve a ejecutar el script.
+
+       ► VARIANTES AL AZAR: hasta 3 bordes y 3 centros. Cada tablón escoge
+         un borde para arriba, otro para abajo y un centro para CADA tablón
+         central, con un azar "natural" (todas salen por igual y nunca la
+         misma dos veces seguidas). Las variantes en "none" no se usan: si
+         solo hay 1, se usa siempre esa. Todas deben medir lo mismo.
        ══════════════════════════════════════════════════════════════ */
-    --tablon-img: url("../media/img/Deco/Tablón/tablon-9slice.png");  /* ← IMAGEN */
-    --tablon-img-borde: 349;       /* ← alto en px (imagen) de la franja de arriba/abajo (lo imprime el script: "slice: 349 150") */
+    --tablon-img-borde-1:  url("../media/img/Deco/Tablón/tablon-borde1.png");   /* ← BORDE 1 */
+    --tablon-img-borde-2:  url("../media/img/Deco/Tablón/tablon-borde2.png");   /* ← BORDE 2 (ej: url("../media/img/Deco/Tablón/tablon-borde2.png")) */
+    --tablon-img-borde-3:  none;                                                /* ← BORDE 3 */
+    --tablon-img-centro-1: url("../media/img/Deco/Tablón/tablon-centro1.png");  /* ← CENTRO 1 */
+    --tablon-img-centro-2: url("../media/img/Deco/Tablón/tablon-centro2.png");  /* ← CENTRO 2 */
+    --tablon-img-centro-3: none;                                                /* ← CENTRO 3 */
+    --tablon-img-borde: 349;       /* ← alto en px (imagen) de la tira de borde (lo imprime el script: "slice: 349 150 690") */
     --tablon-img-lado: 150;        /* ← ancho en px (imagen) de la columna lateral */
+    --tablon-img-tablon: 690;      /* ← alto en px (imagen) de la tira de centro (1 tablón) */
     --tablon-escala: 0.22;         /* px de pantalla por px de imagen. 1 tablón = 690 × 0.22 ≈ 152px de alto */
     --tablon-lado: 16;             /* margen lateral en pantalla (px, solo el número) que el contenido deja libre */
     --tablon-alto: 778;            /* alto mínimo = alto × repeticiones (px) */
@@ -68,14 +79,25 @@
          de abajo de 1796×520. Así el trazo negro se ve con grosor real.
        ══════════════════════════════════════════════════════════════ */
     --folio-img-esquina: url("../media/img/Deco/Hojas/hojaesquina1-recorte.png");  /* ← IMAGEN 1: esquina abajo-izquierda */
-    --folio-img-lado:    url("../media/img/Deco/Hojas/hojalado-recorte.png");     /* ← IMAGEN 2: lado de abajo */
     --folio-img-centro:  url("../media/img/Deco/Hojas/hojacentro.png");           /* ← IMAGEN 3: centro */
+
+    /* IMAGEN 2: LADO de abajo · hasta 3 VARIANTES. Cada lado de cada hoja escoge
+       una al azar ("natural": todas salen por igual y nunca la misma dos veces
+       seguidas). Las que estén en "none" no se usan. Todas deben medir lo mismo. */
+    --folio-img-lado-1:  url("../media/img/Deco/Hojas/hojalado-recorte.png");     /* ← LADO 1 */
+    --folio-img-lado-2:  none;                                                    /* ← LADO 2 (ej: url("../media/img/Deco/Hojas/hojalado2-recorte.png")) */
+    --folio-img-lado-3:  none;                                                    /* ← LADO 3 */
 
     /* MEDIDAS REALES de tus imágenes: los píxeles que miden los ARCHIVOS (solo el número, sin "px").
        Cámbialas solo si cambian las imágenes. */
     --folio-esquina-tam: 520;      /* ← esquina: lo que mide por lado (es cuadrada) */
     --folio-lado-ancho: 1796;      /* ← lado: ancho de la imagen (largo de una repetición) */
     --folio-lado-alto: 520;        /* ← lado: alto de la imagen (grosor del borde) */
+
+    /* Hojas muy estrechas (o muy bajas): si un lado es más corto que su dibujo,
+       como mucho se ENCOGE hasta esta fracción (0.75 = 75%) y el resto se RECORTA
+       desde el centro, en vez de aplastarlo (antes se veía un borrón). 1 = nunca encoger. */
+    --folio-lado-encogido-max: 0.75;
 
     /* TAMAÑO DEL FOLIO EN PANTALLA: UN SOLO NÚMERO.
        = píxeles de pantalla por cada píxel de imagen. Ej: 520 px × 0.1 = 52 px de esquina.
@@ -115,7 +137,9 @@
        abajo-izquierda, lado de abajo, imágenes recortadas al dibujo).
        ══════════════════════════════════════════════════════════════ */
     --marco-img-esquina: url("../media/img/Deco/Hojas/foto/hojafotoesquina1-recorte.png");
-    --marco-img-lado:    url("../media/img/Deco/Hojas/foto/hojafotolado-recorte.png");
+    --marco-img-lado-1:  url("../media/img/Deco/Hojas/foto/hojafotolado-recorte.png");  /* ← LADO 1 */
+    --marco-img-lado-2:  none;                                                          /* ← LADO 2 */
+    --marco-img-lado-3:  none;                                                          /* ← LADO 3 */
     --marco-img-centro:  url("../media/img/Deco/Hojas/foto/hojafotocentro.png");
     --marco-esquina-tam: 440;      /* medidas reales de los archivos (solo el número) */
     --marco-lado-ancho: 1795;
@@ -142,7 +166,9 @@
        3 imágenes y sus medidas reales.
        ══════════════════════════════════════════════════════════════ */
     --cartel-img-esquina: none;    /* ← IMAGEN 1: esquina abajo-izquierda. Ej: url("../media/img/Deco/Cartel/cartelesquina.png") */
-    --cartel-img-lado:    none;    /* ← IMAGEN 2: lado de abajo */
+    --cartel-img-lado-1:  none;    /* ← IMAGEN 2: lado de abajo (hasta 3 variantes al azar, como en el folio) */
+    --cartel-img-lado-2:  none;
+    --cartel-img-lado-3:  none;
     --cartel-img-centro:  none;    /* ← IMAGEN 3: centro */
     --cartel-esquina-tam: 520;     /* medidas reales de los archivos (solo el número) */
     --cartel-lado-ancho: 1796;
@@ -229,21 +255,54 @@ h1{
     flex-direction: column;
     justify-content: center;
 
-    /* Esquinas fijas, lados de arriba/abajo estirados a lo ancho,
-       lados izquierda/derecha y centro repetidos a lo alto (round = sin cortar tablones) */
+    /* Margen lateral que el contenido deja libre (ahí se ven los lados de madera) */
     border-style: solid;
     border-color: transparent;
     border-width: 0 calc(var(--tablon-lado) * 1px);
-    border-image-source: var(--tablon-img);
-    border-image-slice: var(--tablon-img-borde) var(--tablon-img-lado) fill;
-    border-image-width:
-        calc(var(--tablon-img-borde) * var(--tablon-escala) * 1px)
-        calc(var(--tablon-img-lado)  * var(--tablon-escala) * 1px);
-    border-image-repeat: stretch round;
+
+    /* La madera la dibuja una capa (.pf-tablon-capa) que crea Js/script.js DEBAJO del contenido */
+    position: relative;
+    isolation: isolate;
 
     /* ✖ NO añadir aquí: background-color, background (abreviado),
          border-radius ni overflow:hidden. */
 }
+
+/* Capa de madera: borde de arriba + N tablones (centro) + borde de abajo.
+   Js/script.js calcula N (= tablones enteros que caben, como antes) y escoge al azar
+   la variante de cada tira (data-v = 1, 2 o 3). */
+.pf-tablon-capa{
+    position: absolute;
+    inset: 0 calc(-1 * var(--tablon-lado) * 1px);   /* cubre también los bordes laterales */
+    z-index: -1;
+    display: flex;
+    flex-direction: column;
+    pointer-events: none;
+}
+
+/* Cada tira: lados fijos y franja central estirada a lo ancho */
+.pf-tablon-capa > *{
+    --_img: var(--tablon-img-centro-1);
+    min-height: 0;
+    border: 0 solid transparent;
+    border-image-source: var(--_img);
+    border-image-slice: 0 var(--tablon-img-lado) fill;
+    border-image-width: 0 calc(var(--tablon-img-lado) * var(--tablon-escala) * 1px);
+    border-image-repeat: stretch;
+}
+
+.pf-tablon-borde{
+    flex: 0 1 calc(var(--tablon-img-borde) * var(--tablon-escala) * 1px);   /* encoge si el tablón es muy bajo */
+}
+.pf-tablon-borde-abajo{ transform: scaleY(-1); }   /* el de abajo = el de arriba volteado */
+.pf-tablon-centro{ flex: 1 1 0; }                   /* los N tablones se reparten el alto */
+
+.pf-tablon-borde[data-v="1"]{ --_img: var(--tablon-img-borde-1); }
+.pf-tablon-borde[data-v="2"]{ --_img: var(--tablon-img-borde-2); }
+.pf-tablon-borde[data-v="3"]{ --_img: var(--tablon-img-borde-3); }
+.pf-tablon-centro[data-v="1"]{ --_img: var(--tablon-img-centro-1); }
+.pf-tablon-centro[data-v="2"]{ --_img: var(--tablon-img-centro-2); }
+.pf-tablon-centro[data-v="3"]{ --_img: var(--tablon-img-centro-3); }
 
 /* Sin arte de madera: Js/script.js pone la clase pf-sin-tablon en <html>
    y el tablón se pinta de color liso (también bajo los bordes laterales). */
@@ -252,6 +311,7 @@ h1{
     background-clip: border-box;
     color: #fff3dc;               /* texto claro para que se lea sobre el marrón */
 }
+.pf-sin-tablon .pf-tablon-capa{ display: none; }
 
 /* Tablón con texto negro (aunque no haya arte). Uso: <div class="pf-board pf-texto-negro"> */
 .pf-board.pf-texto-negro,
@@ -314,6 +374,7 @@ h1{
     --_min: min(var(--_esq), var(--_gro));
     --_max: max(var(--_esq), var(--_gro));
     --_bor: calc(var(--_min) * var(--folio-borde-dibujo));               /* franja del borde irregular */
+    --_lmin: calc(var(--_lar) * var(--folio-lado-encogido-max));         /* largo mínimo al que se encoge un lado */
 
     position: relative;
     isolation: isolate;
@@ -363,13 +424,28 @@ h1{
     position: absolute;
 }
 
-/* LADO (dibujado "de abajo": lo roto mira hacia abajo) */
+/* LADO (dibujado "de abajo": lo roto mira hacia abajo)
+   --_L = largo real del hueco entre esquinas · --_W = largo de la pieza = max(--_L, --_lmin).
+   Si el hueco es más corto que el dibujo, la pieza NO se aplasta: mide --_W, se centra
+   y clip-path recorta lo que sobra por los dos extremos. */
 .pf-folio-pieza::before{
+    --_W: max(var(--_L), var(--_lmin));
+    width: var(--_W);
     height: var(--_gro);
-    background-image: var(--folio-img-lado);
+    background-image: var(--folio-img-lado-1);
     background-size: var(--_lar) var(--_gro);
     background-repeat: round no-repeat;        /* se repite a lo largo y se ajusta sin cortes */
+    clip-path: inset(0 calc((var(--_W) - var(--_L)) / 2));
 }
+
+/* Variante de lado escogida al azar por Js/script.js (data-v = 1, 2 o 3) */
+.pf-folio-pieza[data-v="2"]::before{ background-image: var(--folio-img-lado-2); }
+.pf-folio-pieza[data-v="3"]::before{ background-image: var(--folio-img-lado-3); }
+
+.pf-folio-arriba,
+.pf-folio-abajo{ --_L: calc(100cqw - 2 * var(--_esq) + 2px); }      /* -1px por lado: solapa bajo la esquina (evita una línea fina) */
+.pf-folio-derecha,
+.pf-folio-izquierda{ --_L: calc(100cqh - 2 * var(--_esq) + 2px); }
 
 /* ESQUINA (dibujada "de abajo-izquierda") */
 .pf-folio-pieza::after{
@@ -381,8 +457,7 @@ h1{
 /* ---- ARRIBA ---- */
 .pf-folio-arriba::before{
     top: 0;
-    left: calc(var(--_esq) - 1px);              /* -1px: solapa bajo la esquina (evita una línea fina) */
-    right: calc(var(--_esq) - 1px);
+    left: calc(50cqw - var(--_W) / 2);          /* centrado entre las dos esquinas */
     transform: rotate(calc(180deg + var(--folio-lado-giro)));
 }
 .pf-folio-arriba::after{
@@ -393,8 +468,7 @@ h1{
 
 /* ---- DERECHA ---- */
 .pf-folio-derecha::before{
-    width: calc(100cqh - 2 * var(--_esq) + 2px);                       /* largo del lado antes de girar */
-    left: calc(100cqw - var(--_gro) / 2 - (100cqh - 2 * var(--_esq) + 2px) / 2);
+    left: calc(100cqw - var(--_gro) / 2 - var(--_W) / 2);              /* se gira sobre su centro */
     top: calc(50cqh - var(--_gro) / 2);
     transform: rotate(calc(270deg + var(--folio-lado-giro)));
 }
@@ -407,8 +481,7 @@ h1{
 /* ---- ABAJO ---- */
 .pf-folio-abajo::before{
     bottom: 0;
-    left: calc(var(--_esq) - 1px);
-    right: calc(var(--_esq) - 1px);
+    left: calc(50cqw - var(--_W) / 2);
     transform: rotate(var(--folio-lado-giro));
 }
 .pf-folio-abajo::after{
@@ -419,8 +492,7 @@ h1{
 
 /* ---- IZQUIERDA ---- */
 .pf-folio-izquierda::before{
-    width: calc(100cqh - 2 * var(--_esq) + 2px);
-    left: calc(var(--_gro) / 2 - (100cqh - 2 * var(--_esq) + 2px) / 2);
+    left: calc(var(--_gro) / 2 - var(--_W) / 2);
     top: calc(50cqh - var(--_gro) / 2);
     transform: rotate(calc(90deg + var(--folio-lado-giro)));
 }
@@ -460,7 +532,9 @@ h1{
    ============================================================ */
 .pf-marco{
     --folio-img-esquina: var(--marco-img-esquina);
-    --folio-img-lado:    var(--marco-img-lado);
+    --folio-img-lado-1:  var(--marco-img-lado-1);
+    --folio-img-lado-2:  var(--marco-img-lado-2);
+    --folio-img-lado-3:  var(--marco-img-lado-3);
     --folio-img-centro:  var(--marco-img-centro);
     --folio-esquina-tam: var(--marco-esquina-tam);
     --folio-lado-ancho:  var(--marco-lado-ancho);
@@ -479,7 +553,9 @@ h1{
    ============================================================ */
 .pf-cartel{
     --folio-img-esquina: var(--cartel-img-esquina);
-    --folio-img-lado:    var(--cartel-img-lado);
+    --folio-img-lado-1:  var(--cartel-img-lado-1);
+    --folio-img-lado-2:  var(--cartel-img-lado-2);
+    --folio-img-lado-3:  var(--cartel-img-lado-3);
     --folio-img-centro:  var(--cartel-img-centro);
     --folio-esquina-tam: var(--cartel-esquina-tam);
     --folio-lado-ancho:  var(--cartel-lado-ancho);
