@@ -35,6 +35,85 @@ function pfFolioIniciar(raiz) {
 document.addEventListener("DOMContentLoaded", function () { pfFolioIniciar(); });
 
 /* ============================================================
+   Desplazamiento SUAVE con la rueda del ratón (en toda la web)
+   Se ajusta con dos variables del :root de Css/styles.css:
+     --scroll-suavidad (0 a 1): parte del camino que recorre en cada fotograma.
+         Más BAJO = más suave y "con inercia" (ej. 0.08) · más ALTO = más directo (ej. 0.3)
+         1 = sin suavizado (como el navegador)
+     --scroll-velocidad: cuánto avanza cada golpe de rueda (1 = normal, 1.5 = más, 0.7 = menos)
+   Si el sistema tiene activado "reducir movimiento", no se suaviza.
+   Otros scripts pueden usarlo: pfScrollSuave(elemento, "x" o "y", píxeles)
+   ============================================================ */
+var pfScrollSuave = (function () {
+    var estados = new WeakMap();
+    var reducir = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    function ajustes() {
+        var e = getComputedStyle(document.documentElement);
+        var s = parseFloat(e.getPropertyValue("--scroll-suavidad"));
+        var v = parseFloat(e.getPropertyValue("--scroll-velocidad"));
+        return { suavidad: s > 0 && s <= 1 ? s : 0.12, velocidad: v > 0 ? v : 1 };
+    }
+
+    function colocar(el, eje, valor) {   // "instant" para que el navegador no lo vuelva a suavizar
+        var o = { behavior: "instant" };
+        o[eje === "x" ? "left" : "top"] = valor;
+        el.scrollTo(o);
+    }
+
+    return function (el, eje, delta) {
+        var a = ajustes();
+        var prop = eje === "x" ? "scrollLeft" : "scrollTop";
+        var max = eje === "x" ? el.scrollWidth - el.clientWidth : el.scrollHeight - el.clientHeight;
+        var porEl = estados.get(el) || {};
+        estados.set(el, porEl);
+        var st = porEl[eje] || (porEl[eje] = { corriendo: false });
+        if (!st.corriendo) st.pos = st.objetivo = el[prop];          // parte de donde esté (barra, teclado...)
+        st.objetivo = Math.max(0, Math.min(max, st.objetivo + delta * a.velocidad));
+
+        if (a.suavidad >= 1 || reducir.matches) { colocar(el, eje, st.objetivo); st.pos = st.objetivo; return; }
+        if (st.corriendo) return;
+        st.corriendo = true;
+        (function paso() {
+            var dif = st.objetivo - st.pos;
+            if (Math.abs(dif) < 0.5) { colocar(el, eje, st.objetivo); st.corriendo = false; return; }
+            st.pos += dif * a.suavidad;
+            colocar(el, eje, st.pos);
+            requestAnimationFrame(paso);
+        })();
+    };
+})();
+
+(function () {
+    // ¿Qué hay que desplazar? El primer elemento (desde el ratón hacia fuera) que pueda moverse
+    // en vertical en ese sentido; si ninguno, la página.
+    function puedeMoverse(el, delta) {
+        var max = el.scrollHeight - el.clientHeight;
+        return max > 1 && (delta > 0 ? el.scrollTop < max - 1 : el.scrollTop > 0);
+    }
+    function buscar(desde, delta) {
+        for (var el = desde; el && el !== document.body && el !== document.documentElement; el = el.parentElement) {
+            if (!(el instanceof Element)) continue;
+            var oy = getComputedStyle(el).overflowY;
+            if ((oy === "auto" || oy === "scroll") && puedeMoverse(el, delta)) return el;
+        }
+        var pagina = document.scrollingElement || document.documentElement;
+        return puedeMoverse(pagina, delta) ? pagina : null;
+    }
+
+    window.addEventListener("wheel", function (e) {
+        if (e.defaultPrevented || e.ctrlKey) return;                      // otro script ya lo usó / zoom
+        if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;             // gesto horizontal: lo deja tal cual
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        var delta = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? window.innerHeight : 1);
+        var el = buscar(e.target, delta);
+        if (!el) return;
+        e.preventDefault();
+        pfScrollSuave(el, "y", delta);
+    }, { passive: false });
+})();
+
+/* ============================================================
    Tablón sin arte · si alguna imagen de .pf-board no carga, añade la clase
    "pf-sin-tablon" a <html> y el CSS pinta el tablón de marrón (--tablon-respaldo).
    ============================================================ */
