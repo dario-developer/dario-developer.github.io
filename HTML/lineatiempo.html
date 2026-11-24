@@ -18,137 +18,231 @@
             <img src="https://img.icons8.com/?size=100&id=26194&format=png&color=000000" alt="">
         </a>
 
-        <!-- CARTEL de cabecera (.pf-cartel, variables --cartel-* del css) -->
-        <header class="pf-cartel pf-cartel-pagina">
-            <h1>Linea de tiempo</h1>
-        </header>
-
         <!-- Contenedor principal -->
         <main class="container-fluid timeline-container d-flex flex-column py-4">
 
-            <div id="pc" class="timeline-wrapper gap-4">
-                <div class="timeline-inner-container d-flex flex-row align-items-center gap-4">
-                    <div class="line rounded-5 d-flex justify-content-evenly align-items-center flex-nowrap" style="width: 400px; height: 100px;">
-                        <p class="text-center m-0">Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam tempore commodi unde! Eos, saepe labore soluta, nulla veritatis nam molestiae suscipit eius ducimus, debitis natus. Fugiat, nulla. Dignissimos, fugit sequi.</p>
-                    </div>
-                    <div class="line rounded-5 d-flex justify-content-evenly align-items-center flex-nowrap" style="width: 400px; height: 100px;">
-                        <p class="text-center m-0">Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam tempore commodi unde! Eos, saepe labore soluta, nulla veritatis nam molestiae suscipit eius ducimus, debitis natus. Fugiat, nulla. Dignissimos, fugit sequi.</p>
-                    </div>
-                </div>
-                <!-- Linea secundaria -->
-                <div class="timeline-inner-container d-flex flex-row align-items-center gap-4">
-                    <!-- UDIT -->
-                    <div class="timeline-box line rounded-5 d-flex justify-content-evenly align-items-center flex-nowrap" style="width: 400px;">
-                        <p class="text-center m-0">Estudios en UDIT</p>
-                    </div>
-                    <div class="timeline-box line rounded-5 d-flex justify-content-evenly align-items-center flex-nowrap" style="width: 400px;">
-                        <p class="text-center m-0">Estudios en UDIT</p>
-                    </div>
-                </div>
-                
-                <!-- Linea principal-->
-                <div class="timeline-inner-container d-flex flex-row align-items-center gap-4">
-                    <!-- 2019 -->
-                    <div class="timeline-box main-line rounded-5 d-flex justify-content-evenly align-items-center flex-nowrap">
-                        <p class="text-center m-0">2019</p>
-                        <p class="text-center m-0">2019</p>
-                    </div>
-
-                    <img src="../media/img/logoipsum-407.png" class="timeline-img img-fluid" alt="">
-
-                    <!-- 2020 -->
-                    <div class="timeline-box main-line rounded-5 d-flex justify-content-evenly align-items-center flex-nowrap">
-                        <p class="text-center m-0">2020</p>
-                        <p class="text-center m-0">2020</p>
-                    </div>
-                </div>
-
-                
-                <!-- Linea secundaria -->
-                <div class="timeline-inner-container d-flex flex-row align-items-center gap-4">
-                    <!-- UDIT -->
-                    <div class="timeline-box line rounded-5 d-flex justify-content-evenly align-items-center flex-nowrap" style="width: 400px;">
-                        <p class="text-center m-0">Estudios en UDIT</p>
-                    </div>
-                    <div class="timeline-box line rounded-5 d-flex justify-content-evenly align-items-center flex-nowrap" style="width: 400px;">
-                        <p class="text-center m-0">Estudios en UDIT</p>
-                    </div>
-                </div>
-
-                <!-- 2 columnas a la vez (máximo) -->
-                <div class="timeline-inner-container d-flex flex-row align-items-center gap-4">
-                    <div class="line rounded-5 d-flex justify-content-evenly align-items-center flex-nowrap" style="width: 400px; height: 100px;">
-                        <p class="text-center m-0">Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam tempore commodi unde! Eos, saepe labore soluta, nulla veritatis nam molestiae suscipit eius ducimus, debitis natus. Fugiat, nulla. Dignissimos, fugit sequi.</p>
-                    </div>
-                    <div class="line rounded-5 d-flex justify-content-evenly align-items-center flex-nowrap" style="width: 400px; height: 100px;">
-                        <p class="text-center m-0">Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam tempore commodi unde! Eos, saepe labore soluta, nulla veritatis nam molestiae suscipit eius ducimus, debitis natus. Fugiat, nulla. Dignissimos, fugit sequi.</p>
-                    </div>
-                </div>
+            <!-- CARTEL de cabecera (.pf-cartel, variables --cartel-* del css).
+                 .timeline-cabecera: en ESCRITORIO se queda fijo solo en HORIZONTAL (centrado aunque avances
+                 por la línea; si bajas, sube con el contenido); en MÓVIL se desplaza siempre con el contenido. -->
+            <div class="timeline-cabecera">
+                <header class="pf-cartel pf-cartel-pagina">
+                    <h1>Linea de tiempo</h1>
+                </header>
             </div>
 
-            <div id="movil" class="justify-content-center gap-3">
-                <!-- Texto -->
-                <div class="d-flex flex-column col-4 gap-4">
-                    <p style="height: 200px;">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor repellat unde suscipit, natus pariatur provident dolore quod iste voluptate illum, nobis fuga, sint excepturi consectetur? Nemo atque nam doloremque consequatur.
-                    </p>
-                    <p style="height: 200px;">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor repellat unde suscipit, natus pariatur provident dolore quod iste voluptate illum, nobis fuga, sint excepturi consectetur? Nemo atque nam doloremque consequatur.
-                    </p>
+            <!-- LÍNEA DE TIEMPO · un solo HTML para escritorio y móvil.
+                 Escritorio: cada .timeline-fila es una FILA y el tiempo avanza hacia la DERECHA
+                             (se ven todas las filas: las de las dos caras, una debajo de otra).
+                 Móvil (≤ 576px): el CSS la gira: cada fila pasa a ser una COLUMNA y el tiempo avanza hacia ABAJO.
+                             La actividad principal se queda siempre a la izquierda y el resto se reparte en
+                             2 CARAS (.timeline-cara): solo se ve una y el botón "voltea" a la otra.
+                             data-nombre = nombre de cada cara en el botón.
+
+                 FECHAS: cada caja dice cuándo empieza y acaba (año-mes, el último mes incluido):
+                     data-desde="2019-09" data-hasta="2020-06"
+                 Js/timeline.js la coloca en su sitio y dibuja solo:
+                     · las muescas de los meses (arriba en escritorio, a la izquierda en móvil)
+                     · una raya grande en cada cambio de año que cruza toda la línea
+                 Una imagen (o caja) con solo data-desde ocupa un único mes.
+                 data-hasta="actualidad" = hasta el mes en curso (se actualiza solo cada mes).
+
+                 Tipos de caja (--grosor = alto en escritorio / ancho en móvil):
+                     .main-line         ACTIVIDAD PRINCIPAL del periodo (normalmente estudios)
+                     .timeline-box.line línea secundaria (etiquetas)
+                     .line              texto largo (descripciones) -->
+            <div class="timeline-wrapper">
+
+                <!-- Actividad principal (normalmente estudios): en móvil se ve con las dos caras -->
+                <div class="timeline-fila timeline-principal">
+                    <div class="timeline-box main-line rounded-5" data-desde="2020-09" data-hasta="2021-05">
+                        <p>1º bachillerato</p>
+                    </div>
+
+                    <div class="timeline-box main-line rounded-5" data-desde="2021-08" data-hasta="2021-08">
+                        <p>Teórico monitor ocio y tiempo libre</p>
+                    </div>
+
+                    <div class="timeline-box main-line rounded-5" data-desde="2021-09" data-hasta="2022-05">
+                        <p>2º bachillerato</p>
+                    </div>
+
+
+                    <div class="timeline-box main-line rounded-5" data-desde="2022-09" data-hasta="2023-05">
+                        <p>1º carrera</p>
+                    </div>
+
+                    <div class="timeline-box main-line rounded-5" data-desde="2023-08" data-hasta="2023-08">
+                        <p>Prácticas monitor ocio y tiempo libre</p>
+                    </div>
+
+                    <div class="timeline-box main-line rounded-5" data-desde="2023-09" data-hasta="2024-05">
+                        <p>2º carrera</p>
+                    </div>
+
+                    <div class="timeline-box main-line rounded-5" data-desde="2024-08" data-hasta="2024-08">
+                        <p>Monitor en VIVO</p>
+                    </div>
+
+                    <div class="timeline-box main-line rounded-5" data-desde="2024-09" data-hasta="2025-05">
+                        <p>3º carrera</p>
+                    </div>
+
+                    <div class="timeline-box main-line rounded-5" data-desde="2025-07" data-hasta="2025-07">
+                        <p>Monitor en Camp Tecnológico</p>
+                    </div>
+
+                    <div class="timeline-box main-line rounded-5" data-desde="2025-09" data-hasta="2026-05">
+                        <p>4º carrera</p>
+                    </div>
+
+
+                    <div class="timeline-box main-line rounded-5" data-desde="2026-06" data-hasta="2026-06">
+                        <p>Trabajo monitor logiscool</p>
+                    </div>
+
+                    <div class="timeline-box main-line rounded-5" data-desde="2026-07" data-hasta="2026-07">
+                        <p>Trabajo monitor Camp Tecnológico</p>
+                    </div>
+
+                    <div class="timeline-box main-line rounded-5" data-desde="2026-09" data-hasta="actualidad">
+                        <p>Busqueda de empleo</p>
+                    </div>
                 </div>
 
-                <!-- Columna lateral -->
-                <div class="col d-flex flex-column gap-4 col-5">
-                    <div class="text-center row align-items-center justify-content-center timeline-box gx-1 rounded-5" style="height: 200px;">
-                        <p>Estudios en UDIT</p>
-                    </div>
+                <!-- Las dos caras (en escritorio no existen para el diseño: sus filas van seguidas) -->
+                <div class="timeline-caras" id="timeline-caras">
 
-                    <div class="text-center row align-items-center justify-content-evenly timeline-box gx-1 rounded-5" style="height: 200px;">
-                        <p>Estudios en UDIT</p>
-                    </div>
-                    <div class="text-center d-flex justify-content-around rounded-5 col-12 dual-time" style="height: 200px;">
-                        <p class="text-center row align-items-center justify-content-center timeline-box gx-1 rounded-5 col">
-                            estudios en UDIT
-                        </p>
-                        <p class="text-center row align-items-center justify-content-center timeline-box gx-1 rounded-5 col">
-                            Prácticas en el CSIC
-                        </p>
-                    </div>
-                </div>
+                    <!-- ===== CARA 1 ===== -->
+                    <div class="timeline-cara" data-nombre="Cara A">
+                        <!-- Linea secundaria -->
+                        <div class="timeline-fila">
+                            <div class="timeline-box line rounded-5" data-desde="2020-09" data-hasta="2021-05">
+                                <p>Voluntariado residencia de ancianos</p>
+                            </div>
+                        </div>
 
-                <!-- Años -->
-                <div class="col d-flex flex-column align-items-center gap-4">
-                    <div class="text-center row align-items-center timeline-box main-line-mv rounded-5" style="height: 900px;">
-                        <p>2019</p>
-                        <p>2019</p>
-                        <p>2019</p>
-                    </div>
-                    
-                    <img src="../media/img/logoipsum-407.png" class="img-fluid">
+                        <!-- Descripciones -->
+                        <div class="timeline-fila">
+                            <div class="line rounded-5" style="--grosor: 100px;" data-desde="2020-09" data-hasta="2021-05">
+                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam tempore commodi unde! Eos, saepe labore soluta, nulla veritatis nam molestiae suscipit eius ducimus, debitis natus. Fugiat, nulla. Dignissimos, fugit sequi.</p>
+                            </div>
+                        </div>
 
-                    <div class="text-center row align-items-center timeline-box main-line-mv rounded-5" style="height: 900px;">
-                        <p>2020</p>
-                        <p>2020</p>
-                        <p>2020</p>
+                        <!-- Linea secundaria -->
+                        <div class="timeline-fila">
+                            <div class="timeline-box line rounded-5" data-desde="2022-09" data-hasta="2023-05">
+                                <p>Trabajo profesor particular</p>
+                            </div>
+                        </div>
+
+                        <!-- Descripciones -->
+                        <div class="timeline-fila">
+                            <div class="line rounded-5" style="--grosor: 100px;" data-desde="2022-09" data-hasta="2023-05">
+                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam tempore commodi unde! Eos, saepe labore soluta, nulla veritatis nam molestiae suscipit eius ducimus, debitis natus. Fugiat, nulla. Dignissimos, fugit sequi.</p>
+                            </div>
+                        </div>
+
+                        <!-- Linea secundaria -->
+                        <div class="timeline-fila">
+                            <div class="timeline-box line rounded-5" data-desde="2023-09" data-hasta="2024-05">
+                                <p>Trabajo profesor particular</p>
+                            </div>
+                        </div>
+
+                        <!-- Descripciones -->
+                        <div class="timeline-fila">
+                            <div class="line rounded-5" style="--grosor: 100px;" data-desde="2023-09" data-hasta="2024-05">
+                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam tempore commodi unde! Eos, saepe labore soluta, nulla veritatis nam molestiae suscipit eius ducimus, debitis natus. Fugiat, nulla. Dignissimos, fugit sequi.</p>
+                            </div>
+                        </div>
+
+                        <!-- Linea secundaria -->
+                        <div class="timeline-fila">
+                            <div class="timeline-box line rounded-5" data-desde="2024-09" data-hasta="2027-02">
+                                <p>Trabajo en Chomperz</p>
+                            </div>
+                        </div>
+
+                        <!-- Descripciones -->
+                        <div class="timeline-fila">
+                            <div class="line rounded-5" style="--grosor: 100px;" data-desde="2024-09" data-hasta="2027-02">
+                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam tempore commodi unde! Eos, saepe labore soluta, nulla veritatis nam molestiae suscipit eius ducimus, debitis natus. Fugiat, nulla. Dignissimos, fugit sequi.</p>
+                            </div>
+                        </div>
+
+                        <!-- Linea secundaria -->
+                        <div class="timeline-fila">
+                            <div class="timeline-box line rounded-5" data-desde="2026-09" data-hasta="actualidad">
+                                <p>Estudio C1 de inglés</p>
+                            </div>
+                        </div>
+
+                        <!-- Descripciones -->
+                        <div class="timeline-fila">
+                            <div class="line rounded-5" style="--grosor: 100px;" data-desde="2026-09" data-hasta="actualidad">
+                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam tempore commodi unde! Eos, saepe labore soluta, nulla veritatis nam molestiae suscipit eius ducimus, debitis natus. Fugiat, nulla. Dignissimos, fugit sequi.</p>
+                            </div>
+                        </div>
                         
                     </div>
 
-                    <img src="../media/img/logoipsum-407.png" class="img-fluid">
+                    <!-- ===== CARA 2 ===== -->
+                    <div class="timeline-cara" data-nombre="Cara B">
+                        <div class="timeline-fila">
+                            <div class="timeline-box line rounded-5" data-desde="2021-10" data-hasta="2022-04">
+                                <p>Voluntariado asociación "de tu mano"</p>
+                            </div>
+                        </div>
+
+                        <!-- Descripciones -->
+                        <div class="timeline-fila">
+                            <div class="line rounded-5" style="--grosor: 100px;" data-desde="2021-10" data-hasta="2022-05">
+                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam tempore commodi unde! Eos, saepe labore soluta, nulla veritatis nam molestiae suscipit eius ducimus, debitis natus. Fugiat, nulla. Dignissimos, fugit sequi.</p>
+                            </div>
+                        </div>
+
+                        <!-- Linea secundaria -->
+                        <div class="timeline-fila">
+                            <div class="timeline-box line rounded-5" data-desde="2023-10" data-hasta="2024-02">
+                                <p>Trabajo profesor extraescolar Unity</p>
+                            </div>
+                        </div>
+
+                        <!-- Descripciones -->
+                        <div class="timeline-fila">
+                            <div class="line rounded-5" style="--grosor: 100px;" data-desde="2023-10" data-hasta="2024-02">
+                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam tempore commodi unde! Eos, saepe labore soluta, nulla veritatis nam molestiae suscipit eius ducimus, debitis natus. Fugiat, nulla. Dignissimos, fugit sequi.</p>
+                            </div>
+                        </div>
+
+                        <!-- Linea secundaria -->
+                        <div class="timeline-fila">
+                            <div class="timeline-box line rounded-5" data-desde="2025-01" data-hasta="2025-04">
+                                <p>Prácticas en el CSIC</p>
+                            </div>
+                        </div>
+
+                        <!-- Descripciones -->
+                        <div class="timeline-fila">
+                            <div class="line rounded-5" style="--grosor: 100px;" data-desde="2025-01" data-hasta="2025-04">
+                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam tempore commodi unde! Eos, saepe labore soluta, nulla veritatis nam molestiae suscipit eius ducimus, debitis natus. Fugiat, nulla. Dignissimos, fugit sequi.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-
-               
-
-                
-
             </div>
         </main>
 
-        <!-- JS de los carteles y hojas (crea las piezas) -->
+        <!-- Botón para voltear a la otra línea (solo móvil; el texto lo pone Js/timeline.js) -->
+        <button type="button" class="timeline-voltear" aria-controls="timeline-caras">
+            <span class="timeline-voltear-icono" aria-hidden="true">⇄</span>
+            <span class="timeline-voltear-texto">Cara B</span>
+        </button>
 
+        <!-- JS de los carteles y hojas (crea las piezas) -->
         <script src="../Js/script.js"></script>
 
-
-        <!-- Rueda del ratón → scroll horizontal en escritorio/tablet -->
+        <!-- Rueda del ratón → scroll horizontal en escritorio/tablet · volteo de líneas en móvil -->
         <script src="../Js/timeline.js"></script>
     </body>
 </html>

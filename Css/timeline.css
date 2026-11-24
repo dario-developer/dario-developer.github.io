@@ -2,6 +2,12 @@
     --color-bg: rgb(2, 11, 41);
     --color-elements: rgb(241, 241, 241);
 
+    /* Bordes de las líneas: línea de luz blanca amarillenta con halo que se desvanece (ver .timeline-box) */
+    --linea-nucleo: rgb(255, 249, 228);            /* la línea en sí: blanco amarillento */
+    --linea-halo-1: rgba(255, 243, 205, 0.85);     /* halo pegado a la línea */
+    --linea-halo-2: rgba(255, 230, 160, 0.35);     /* halo medio */
+    --linea-halo-3: rgba(255, 215, 130, 0.12);     /* halo lejano (casi transparente) */
+
     /* ══════════════════════════════════════════════════════════════
        BARRA DE SCROLL "ESPACIAL"
        Pista = cielo con estrellas · pulgar = cometa (cabeza hacia donde avanza).
@@ -48,9 +54,11 @@ html{
     }
 }
 
-/* La página ocupa exactamente la pantalla: header arriba y el contenedor
-   de la línea de tiempo rellena TODO lo que queda (la página no hace scroll,
-   lo hace el contenedor). dvh = alto real en móvil (sin barras del navegador). */
+/* La página ocupa exactamente la pantalla y el contenedor de la línea de tiempo
+   la rellena (la página no hace scroll, lo hace el contenedor). El header va DENTRO
+   del contenedor: en escritorio se queda fijo (.timeline-cabecera, abajo) y en móvil
+   se desplaza con el contenido.
+   dvh = alto real en móvil (sin barras del navegador). */
 #timeline-body{
     height: 100vh;
     height: 100dvh;
@@ -59,8 +67,75 @@ html{
     overflow: hidden;
 }
 
-#timeline-body > header{
+/* Cabecera: en ESCRITORIO se queda fija SOLO EN HORIZONTAL. Mide lo que la pantalla (no lo
+   que la línea) y se pega a la izquierda del contenedor, así el cartel sigue centrado al
+   avanzar por la línea; si se baja, se va hacia arriba con el contenido.
+   En MÓVIL (bloque @media de abajo) se desplaza con el contenido en todo momento. */
+.timeline-cabecera{
     flex-shrink: 0;
+    position: sticky;
+    left: 0;                      /* solo "left": fija en horizontal, no en vertical */
+    z-index: 5;                   /* por encima de la línea de tiempo */
+    pointer-events: none;         /* la franja transparente no bloquea los clics de debajo... */
+}
+.timeline-cabecera > *{
+    pointer-events: auto;         /* ...pero el cartel sí se puede usar */
+}
+
+/* ============================================================
+   CARTEL y BOTÓN DE VOLVER con la temática espacial de esta página
+   (solo aquí: timeline.css solo lo carga la línea de tiempo).
+   Mismo estilo que las líneas: fondo azul noche + línea de luz blanca amarillenta
+   con halo que se desvanece (--linea-nucleo / --linea-halo-*). Al pasar el ratón,
+   el botón se enciende con el azul del cometa (como el botón de volteo).
+   ============================================================ */
+#timeline-body{
+    --espacio-fondo: rgba(4, 14, 48, 0.88);          /* ← fondo del cartel y del botón (azul noche) */
+    --espacio-fondo-luz: rgba(38, 52, 112, 0.92);    /* ← zona más clara del fondo (como una nebulosa) */
+    --cabecera-borde: 2px;                           /* ← grosor de la línea de luz del cartel */
+}
+
+/* Cartel "Linea de tiempo" */
+.timeline-cabecera .pf-cartel{
+    border: var(--cabecera-borde) solid var(--linea-nucleo);
+    border-radius: 1.25rem;
+    background: radial-gradient(ellipse at 30% 20%, var(--espacio-fondo-luz), var(--espacio-fondo) 70%);
+    background-clip: padding-box;
+    color: var(--linea-nucleo);
+    text-shadow: 0 0 8px var(--linea-halo-2);
+    box-shadow:
+        0 0 3px 1px  var(--linea-halo-1),
+        0 0 10px 3px var(--linea-halo-2),
+        0 0 22px 6px var(--linea-halo-3),
+        inset 0 0 3px 1px  var(--linea-halo-1),
+        inset 0 0 10px 3px var(--linea-halo-2);
+}
+
+/* Botón de volver al inicio */
+#timeline-body .pf-back-btn{
+    padding: 0.55rem;
+    border: 2px solid var(--linea-nucleo);
+    background: radial-gradient(circle at 35% 30%, var(--espacio-fondo-luz), var(--espacio-fondo) 70%);
+    box-shadow:
+        0 0 3px 1px  var(--linea-halo-1),
+        0 0 10px 3px var(--linea-halo-2),
+        inset 0 0 6px 1px var(--linea-halo-2);
+    opacity: 0.8;
+    transition: opacity 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+#timeline-body .pf-back-btn img{
+    /* El icono original es una flecha NEGRA: se pasa a blanco amarillento con un brillo suave */
+    filter: invert(1) sepia(0.3) saturate(1.6) brightness(1.05) drop-shadow(0 0 3px var(--linea-halo-1));
+}
+#timeline-body .pf-back-btn:hover,
+#timeline-body .pf-back-btn:focus-visible{
+    opacity: 1;
+    border-color: var(--barra-cometa-cabeza);
+    box-shadow:
+        0 0 4px 1px  var(--linea-halo-1),
+        0 0 16px 5px var(--barra-cometa-brillo),
+        inset 0 0 8px 2px var(--linea-halo-2);
+    outline: none;
 }
 
 /* El contenedor scroll: horizontal en escritorio/tablet, vertical en móvil */
@@ -72,54 +147,186 @@ html{
     width: 100%;
 }
 
-/* Wrapper */
+/* ============================================================
+   LÍNEA DE TIEMPO · un solo HTML para escritorio y móvil
+   Escritorio: .timeline-wrapper apila FILAS (.timeline-fila) y el tiempo va hacia la DERECHA.
+   Móvil: el bloque @media de abajo lo GIRA (filas → columnas, tiempo hacia ABAJO).
+
+   EL TIEMPO ES UNA REJILLA DE MESES: cada fila tiene un hueco por mes (--mes de largo).
+   Js/timeline.js lee data-desde / data-hasta de cada caja y la coloca en sus meses
+   (--pos = "mes de inicio / span nº de meses"). También crea:
+     · .timeline-regla        → muescas de los meses (arriba en escritorio, a la izquierda en móvil)
+     · .timeline-marca-anio   → raya grande en cada cambio de año que cruza toda la línea
+   Si dos cajas de una fila coinciden en el tiempo, la rejilla pone una debajo/al lado de la otra.
+   ============================================================ */
 .timeline-wrapper {
+    --mes: 140px;                      /* ← largo de 1 MES en escritorio (1 año = 12 × esto) */
+    --marca-anio-color: rgba(241, 241, 241, 0.35);
+    --marca-anio-grosor: 2px;
+    position: relative;                /* las marcas de año se colocan respecto a esto */
     display: flex;
     flex-direction: column;
-    min-width: 1800px;
-    width: 100%;
+    gap: 1.5rem;
+    width: max-content;
+    min-width: 100%;
     margin: auto 0;
 }
 
-.timeline-inner-container {
-    width: 100%;
-    max-width: 100%;
+/* Cada fila = rejilla de meses */
+.timeline-fila,
+.timeline-regla {
+    display: grid;
+    grid-template-columns: repeat(var(--total-meses, 12), var(--mes));
+    align-items: center;
+    row-gap: 0.75rem;
+    /* Cada caja va a la PRIMERA fila donde quepa (dense): las que no coinciden en fechas
+       comparten fila; solo las que se solapan bajan a otra. Sin "dense", una caja que va
+       en el HTML antes que otra más temprana abre fila nueva aunque haya hueco. */
+    grid-auto-flow: row dense;
+    position: relative;
+    z-index: 1;                        /* por encima de las marcas de año */
 }
 
-/* Estilos líneas */
+/* Cada caja ocupa sus meses (lo calcula el JS) */
+.timeline-fila > *{
+    grid-column: var(--pos, auto);
+}
+
+/* Todas las cajas: contenido centrado; el largo lo da la rejilla, el grosor --grosor */
+.timeline-box,
+.line {
+    box-sizing: border-box;
+    height: var(--grosor);
+    min-width: 0;
+    margin-inline: 3px;                /* separa dos cajas seguidas */
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    text-align: center;
+    padding-inline: 1.25rem;           /* margen a los lados: el texto que acompaña al avanzar no toca el borde */
+    background-color: rgba(2, 11, 41, 0.85);   /* tapa las marcas de año por detrás del texto */
+}
+
+/* Estilos líneas
+   Borde = LÍNEA DE LUZ blanca amarillenta: un núcleo fino y brillante (--borde) con un halo
+   que se va atenuando y volviendo transparente conforme se aleja de la línea (hacia fuera y
+   hacia dentro de la caja). Colores y halo: variables --linea-* del :root. */
 .timeline-box {
-    flex-shrink: 0; 
-    border-color: var(--color-elements);
+    position: relative;
     border-style: solid;
+    border-width: var(--borde);
+    border-color: var(--linea-nucleo);
+    box-shadow:
+        0 0 3px 1px  var(--linea-halo-1),        /* pegado a la línea: casi tan brillante como ella */
+        0 0 10px 3px var(--linea-halo-2),        /* más lejos: más tenue */
+        0 0 22px 6px var(--linea-halo-3),        /* lo más lejos: casi transparente */
+        inset 0 0 3px 1px  var(--linea-halo-1),  /* lo mismo hacia dentro de la caja */
+        inset 0 0 10px 3px var(--linea-halo-2);
 }
 
 .timeline-box p, .line p {
     color: var(--color-elements);
-    gap: 0px;
+    margin: 0;
 }
 
-/* Linea principal */
+/* Nombre de cada línea: ACOMPAÑA al desplazarte. Js/timeline.js lo mantiene centrado en la
+   pantalla mientras se recorre la línea y, cuando la caja se acaba, lo deja junto a su borde. */
+.timeline-box p{
+    will-change: transform;
+}
+
+/* Linea principal: actividad principal de cada periodo (normalmente estudios) */
 .main-line {
-    height: 5rem;
-    border-width: 10px;
-    width: 1200px;
+    --grosor: 5rem;
+    --borde: 3px;                      /* grosor del núcleo de la línea de luz */
 }
 
-/* Lineas secundarias */
+/* Lineas secundarias y descripciones */
 .line {
-    height: 3rem;
-    border-width: 7.5px;
+    --grosor: 3rem;
+    --borde: 2px;
 }
 
-/* Control img */
+/* Líneas secundarias en escritorio: un poco más de margen a los lados para el texto que acompaña */
+.timeline-box.line {
+    padding-inline: 1.75rem;
+}
+
+/* Descripciones (texto largo): si el texto no cabe en su --grosor, la caja crece */
+.line:not(.timeline-box){
+    height: auto;
+    min-height: var(--grosor);
+}
+
+/* SOLO ESCRITORIO: cada fila de descripciones se pega a SU línea secundaria (la de arriba)
+   y se aleja de la línea siguiente. Así queda claro a qué línea acompaña cada texto.
+   (La separación normal entre filas es el "gap" de .timeline-wrapper: 1.5rem.) */
+@media (min-width: 577px){
+    .timeline-cara > .timeline-fila:has(> .line:not(.timeline-box)){
+        margin-top: var(--desc-pegada, -0.75rem);      /* ← más cerca de su línea (negativo = resta al gap) */
+        margin-bottom: var(--desc-separada, 1rem);     /* ← más lejos de la línea siguiente (se suma al gap) */
+    }
+}
+
+/* Control img (ocupa su mes y se ajusta a él sin deformarse) */
 .timeline-img {
     height: 5rem;
-    width: auto;
-    flex-shrink: 0;
+    width: 100%;
+    object-fit: contain;
 }
 
-#movil{
-    display: none;
+/* ---- REGLA DE MESES (la crea el JS) ----
+   Escritorio: fila de muescas ENCIMA de todo, cada una con su nº de mes (1-12);
+   el año va arriba, junto a la muesca de enero. */
+.timeline-regla{
+    height: 2.5rem;
+    align-items: end;
+    margin-bottom: -0.75rem;           /* pegada a la primera fila */
+}
+
+.timeline-mes{
+    position: relative;
+    height: 0.9rem;
+    border-left: 2px solid var(--color-elements);
+    color: var(--color-elements);
+}
+
+.timeline-mes.enero,
+.timeline-mes.inicio{
+    height: 100%;
+}
+
+/* Número de mes, a la derecha de la muesca */
+.timeline-mes::after{
+    content: attr(data-mes);
+    position: absolute;
+    left: 5px;
+    bottom: 0;
+    font-size: 0.75rem;
+    line-height: 1;
+    opacity: 0.75;
+}
+
+.timeline-mes.enero::before,
+.timeline-mes.inicio::before{
+    content: attr(data-anio);
+    position: absolute;
+    left: 6px;
+    top: 0;
+    font-size: 0.85rem;
+    line-height: 1;
+    color: var(--color-elements);
+}
+
+/* ---- MARCA DE AÑO (la crea el JS): raya que cruza toda la línea de tiempo ---- */
+.timeline-marca-anio{
+    position: absolute;
+    z-index: 0;
+    pointer-events: none;
+    top: 0;
+    bottom: 0;
+    left: calc(var(--i) * var(--mes) - var(--marca-anio-grosor) / 2);
+    border-left: var(--marca-anio-grosor) dashed var(--marca-anio-color);
 }
 
 /* ============================================================
@@ -195,38 +402,286 @@ html{
     }
 }
 
-/* Textos de móvil: solo scroll vertical, las palabras largas parten línea */
-#movil p{
-    overflow-x: hidden;
-    overflow-y: auto;
-    overflow-wrap: break-word;
+/* ============================================================
+   CARAS y BOTÓN DE VOLTEO · en escritorio no existen:
+   las caras no ocupan caja (display: contents) y sus filas van seguidas
+   debajo de la de años, como siempre. El botón solo se ve en móvil.
+   ============================================================ */
+.timeline-caras,
+.timeline-cara{
+    display: contents;
 }
 
+.timeline-voltear{
+    display: none;
+}
 
-/* MOVIL */
+/* ============================================================
+   MÓVIL (≤ 576px) · la misma línea de tiempo GIRADA y en 2 CARAS
+   Filas → columnas · la rejilla de meses va hacia ABAJO · --grosor pasa a ser el ANCHO.
+       ┌meses┐┌principal┐ ┌──── cara visible (línea 1 o 2) ────┐
+       │2019 ││         │ │ columnas de esa cara               │   ← el botón la voltea (efecto 3D)
+       ├─────┼┼─────────┼─┼────────────────────────────────────┤   ← marca de año (cruza la pantalla)
+   La regla de meses y la actividad principal se quedan fijas; las caras se voltean como una carta.
+   No hay scroll horizontal: a la otra cara solo se llega con el botón.
+   Grosor de cada tipo en móvil: --grosor-movil (o en el style="" de una caja).
+   ============================================================ */
 @media (max-width: 576px) {
-    #pc{
-        display: none;
-    }
-
-    #movil{
-        display: flex;
-        flex-direction: row;
-        color:var(--color-elements);
-        padding-top: 40px;
-        margin-block: auto;       /* centrado vertical si cabe; si no, scroll normal desde arriba */
-    }
-
-    /* En móvil el contenedor solo baja en vertical (con la barra espacial) */
     .timeline-container{
-        overflow-x: hidden;
+        overflow-x: hidden;                    /* nada de ir de lado: solo con el botón */
+        padding-bottom: 5.5rem !important;     /* que el botón no tape el final */
     }
 
-    .main-line-mv{
-        border-width: 6px;
+    /* La cabecera NO se queda fija en móvil: sube con el contenido */
+    .timeline-cabecera{
+        position: static;
     }
 
-    .timeline-box{
-        font-size: clamp(0.5rem, 0.85rem, 2rem);
+    .timeline-wrapper{
+        --mes: 90px;                  /* ← alto de 1 MES en móvil */
+        flex-direction: row;          /* meses | principal | caras */
+        align-items: flex-start;      /* todo empieza arriba (el principio del tiempo) */
+        gap: 0.4rem;
+        min-width: 0;
+        width: 100%;
+        margin: 0;
+        padding-inline: 0.5rem;
+    }
+
+    /* Rejilla de meses hacia ABAJO; si dos cajas coinciden, se ponen una al lado de otra */
+    .timeline-fila,
+    .timeline-regla{
+        grid-template-columns: none;
+        grid-template-rows: repeat(var(--total-meses, 12), var(--mes));
+        grid-auto-flow: column dense;        /* igual que en escritorio, pero en columnas */
+        align-items: stretch;
+        row-gap: 0;
+        column-gap: 0.4rem;
+    }
+
+    .timeline-fila > *{
+        grid-column: auto;
+        grid-row: var(--pos, auto);
+    }
+
+    /* Dentro de las caras, las filas NO pueden crear su propia capa (position + z-index):
+       Chrome dejaría de ocultarlas por detrás al voltear. Ya quedan por encima de las
+       marcas de año porque .timeline-caras tiene z-index. */
+    .timeline-cara > .timeline-fila{
+        position: static;
+        z-index: auto;
+    }
+
+    /* Regla de meses: columna estrecha a la IZQUIERDA; muescas pegadas al contenido,
+       nº de mes a la izquierda de cada muesca y el año debajo de la de enero */
+    .timeline-regla{
+        flex: 0 0 auto;
+        width: 1.8rem;
+        height: auto;
+        margin-bottom: 0;
+        justify-items: end;
+        align-items: start;
+    }
+    .timeline-mes{
+        width: 0.4rem;
+        height: 0;
+        border-left: 0;
+        border-top: 2px solid var(--color-elements);
+    }
+    .timeline-mes.enero,
+    .timeline-mes.inicio{
+        width: 100%;
+        height: 0;
+    }
+    .timeline-mes::after{
+        left: auto;
+        right: calc(100% + 3px);      /* a la izquierda de la muesca, centrado en la raya */
+        bottom: auto;
+        top: -0.4em;
+        font-size: 0.65rem;
+    }
+    .timeline-mes.enero::after,
+    .timeline-mes.inicio::after{
+        right: 3px;                   /* enero: la muesca ocupa todo; el número va encima, a la derecha */
+        top: calc(-1em - 2px);
+    }
+    .timeline-mes.enero::before,
+    .timeline-mes.inicio::before{
+        left: 0;
+        top: 5px;
+        font-size: 0.6rem;
+    }
+
+    /* Marca de año: raya HORIZONTAL que cruza toda la pantalla */
+    .timeline-marca-anio{
+        top: calc(var(--i) * var(--mes) - var(--marca-anio-grosor) / 2);
+        bottom: auto;
+        left: 0;
+        right: 0;
+        border-left: 0;
+        border-top: var(--marca-anio-grosor) dashed var(--marca-anio-color);
+    }
+
+    /* Actividad principal: fija, siempre por encima de la carta mientras gira */
+    .timeline-principal{
+        flex: 0 0 auto;
+        position: relative;
+        z-index: 2;
+    }
+
+    /* La "carta": las dos caras en el mismo sitio, una por cada lado */
+    .timeline-caras{
+        --volteo-duracion: 0.7s;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);   /* las caras miden lo que queda de pantalla, no lo que su texto */
+        flex: 1 1 0;
+        min-width: 0;
+        position: relative;
+        z-index: 1;
+        transform-style: preserve-3d;
+        transform-origin: 50% var(--volteo-origen-y, 50%);   /* gira a la altura de lo que se está viendo (Js/timeline.js) */
+        transform: perspective(1400px) rotateY(0deg);
+        transition: transform var(--volteo-duracion) cubic-bezier(0.45, 0, 0.25, 1);
+    }
+    .timeline-caras.volteada{
+        transform: perspective(1400px) rotateY(180deg);
+    }
+
+    .timeline-cara{
+        grid-area: 1 / 1;             /* las dos caras ocupan la misma celda */
+        display: flex;
+        flex-direction: row;          /* sus filas = columnas */
+        align-items: flex-start;
+        gap: 0.4rem;
+        min-width: 0;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;  /* la cara de atrás no se ve */
+    }
+    .timeline-cara:nth-child(2){
+        transform: rotateY(180deg);   /* la segunda está en el dorso */
+    }
+
+    /* Columnas de descripciones: se reparten el ancho que quede */
+    .timeline-cara > .timeline-fila:has(> .line:not(.timeline-box)){
+        flex: 1 1 0;
+        min-width: 0;
+    }
+
+    /* El alto lo da la rejilla (sus meses); el ancho, el grosor */
+    .timeline-box,
+    .line{
+        width: var(--grosor-movil, var(--grosor));
+        height: auto;
+        min-height: 0;
+        margin: 3px 0;                /* separa dos cajas seguidas */
+        flex-direction: column;       /* los textos de una caja se reparten a lo alto */
+        font-size: 0.8rem;
+        padding: 0.25rem;
+    }
+
+    /* Textos de las líneas en HORIZONTAL (orientación normal de lectura) */
+    .timeline-box p{
+        line-height: 1.2;
+        overflow-wrap: break-word;    /* parte por palabras; solo corta una palabra si no cabe sola */
+        hyphens: auto;                /* y entonces con guion (lang="es") */
+    }
+
+    /* Columnas finas (75% de lo que eran) para dejar más sitio a las descripciones */
+    .main-line{
+        --grosor-movil: 3.75rem;
+        --borde: 2px;
+        padding: 1.1rem 0.2rem;       /* margen arriba/abajo: el texto que acompaña al bajar no toca el borde */
+        font-size: 0.68rem;
+    }
+
+    .timeline-box.line{
+        --grosor-movil: 3.5rem;
+        --borde: 1.5px;
+        padding: 0.8rem 0.1rem;
+        font-size: 0.65rem;
+    }
+
+    /* Descripciones: todo el ancho de su columna (si coinciden dos, se lo reparten).
+       Su alto son sus meses: si el texto no cabe, se desplaza DENTRO de la caja
+       (para no descuadrar las fechas). */
+    .timeline-cara > .timeline-fila:has(> .line:not(.timeline-box)){
+        grid-auto-columns: minmax(0, 1fr);
+    }
+    .line:not(.timeline-box){
+        width: auto;
+        height: auto;
+        min-height: 0;
+        overflow-y: auto;
+        justify-content: flex-start;
+        font-size: 0.75rem;
+    }
+
+    .line:not(.timeline-box) p{
+        margin-block: auto;           /* centrado si cabe; si no, desde arriba */
+        overflow-wrap: break-word;
+        hyphens: auto;
+    }
+
+    .timeline-img{
+        width: 3.75rem;               /* = ancho de la actividad principal */
+        height: 100%;
+    }
+
+    /* Botón de volteo: abajo, centrado, con el estilo espacial de la barra */
+    .timeline-voltear{
+        position: fixed;
+        left: 50%;
+        bottom: 1rem;
+        z-index: 100;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.6rem 1.2rem;
+        border: 3px solid var(--color-elements);
+        border-radius: 999px;
+        background: var(--barra-pista-color);
+        color: var(--color-elements);
+        font-size: 0.95rem;
+        box-shadow: 0 0 12px var(--barra-cometa-brillo);
+        cursor: pointer;
+    }
+    .timeline-voltear:active{
+        transform: translateX(-50%) scale(0.95);
+    }
+
+    /* AVISO: parpadea cuando en la otra cara hay algo cerca de lo que se está viendo
+       (lo decide Js/timeline.js poniendo la clase .timeline-aviso) */
+    .timeline-voltear{
+        --aviso-brillo: rgba(244, 252, 137, 0.75);                                              /* ← color e intensidad del brillo */
+        --aviso-borde: color-mix(in srgb, var(--barra-cometa-medio) 100%, var(--color-elements)); /* ← color del borde al brillar */
+    }
+    .timeline-voltear.timeline-aviso{
+        animation: timeline-aviso var(--aviso-ritmo, 2.26s) ease-in-out infinite;   /* ← ritmo del parpadeo (más alto = más lento) */
+    }
+    @keyframes timeline-aviso{
+        0%, 100%{ box-shadow: 0 0 12px var(--barra-cometa-brillo); border-color: var(--color-elements); }
+        50%     { box-shadow: 0 0 15px 3.75px var(--aviso-brillo); border-color: var(--aviso-borde); }   /* 25% menos brillo que el cometa puro */
+    }
+    .timeline-voltear-icono{
+        display: inline-block;
+        font-size: 1.2rem;
+        transition: transform var(--volteo-duracion, 0.7s);
+    }
+    .timeline-voltear[aria-pressed="true"] .timeline-voltear-icono{
+        transform: rotateY(180deg);
+    }
+}
+
+/* Sin animaciones si el usuario lo ha pedido en su sistema: cambio instantáneo */
+@media (max-width: 576px) and (prefers-reduced-motion: reduce){
+    .timeline-caras,
+    .timeline-voltear-icono{
+        transition: none;
+    }
+    .timeline-voltear.timeline-aviso{             /* sin parpadeo: aviso fijo (borde y brillo de cometa) */
+        animation: none;
+        border-color: var(--aviso-borde);
+        box-shadow: 0 0 15px 3px var(--aviso-brillo);
     }
 }

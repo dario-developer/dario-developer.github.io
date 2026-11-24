@@ -1,49 +1,6 @@
 /* ============================================================
-   Azar "natural" · para escoger variantes de arte (lados de hojas, tablones...)
-   El azar puro hace rachas (la misma 4 veces seguidas) y a la gente no le parece
-   aleatorio. Esto funciona como una bolsa: se barajan todas las variantes, se
-   sacan una a una y, al vaciarse, se vuelve a llenar sin repetir la última.
-   Así todas salen por igual y nunca sale la misma dos veces seguidas.
-       pfAzar("familia", [1, 2, 3])  → 1, 2 o 3
-   ============================================================ */
-var pfAzar = (function () {
-    var bolsas = {};
-    function barajar(a) {
-        for (var i = a.length - 1; i > 0; i--) {
-            var j = Math.floor(Math.random() * (i + 1));
-            var t = a[i]; a[i] = a[j]; a[j] = t;
-        }
-        return a;
-    }
-    return function (familia, opciones) {
-        var clave = familia + ":" + opciones.join(",");
-        var bolsa = bolsas[clave] || (bolsas[clave] = { cola: [], ultima: null });
-        if (!bolsa.cola.length) {
-            bolsa.cola = barajar(opciones.slice());
-            if (bolsa.cola.length > 1 && bolsa.cola[0] === bolsa.ultima) {   // no repetir al rellenar
-                var t = bolsa.cola[0]; bolsa.cola[0] = bolsa.cola[1]; bolsa.cola[1] = t;
-            }
-        }
-        bolsa.ultima = bolsa.cola.shift();
-        return bolsa.ultima;
-    };
-})();
-
-/* Variantes (1, 2, 3) de una imagen que tienen arte: las que no están en "none".
-   Si no hay ninguna, devuelve [1]. Ej: pfVariantes(el, "--folio-img-lado-") */
-function pfVariantes(el, prefijo) {
-    var estilo = getComputedStyle(el), hay = [];
-    [1, 2, 3].forEach(function (n) {
-        var v = estilo.getPropertyValue(prefijo + n).trim();
-        if (v && v !== "none") hay.push(n);
-    });
-    return hay.length ? hay : [1];
-}
-
-/* ============================================================
    folio.js · crea las piezas (lados y esquinas) de cada .pf-folio
    No hay que tocar nada: basta con poner la clase "pf-folio" a un elemento.
-   Cada lado escoge al azar una de las variantes --folio-img-lado-1/2/3.
    Si añades folios dinámicamente (después de cargar la página), llama a:
        pfFolioIniciar();   // o pfFolioIniciar(contenedor)
    ============================================================ */
@@ -66,13 +23,10 @@ function pfFolioIniciar(raiz) {
     // 3. Crea las piezas (lados y esquinas) de cada folio
     raiz.querySelectorAll(".pf-folio").forEach(function (folio) {
         if (folio.querySelector(":scope > .pf-folio-pieza")) return;   // ya tiene sus piezas
-        var variantes = pfVariantes(folio, "--folio-img-lado-");
-        var familia = folio.classList.contains("pf-cartel") ? "cartel" : folio.classList.contains("pf-marco") ? "marco" : "folio";
         lados.forEach(function (lado) {
             var pieza = document.createElement("span");
             pieza.className = "pf-folio-pieza pf-folio-" + lado;
             pieza.setAttribute("aria-hidden", "true");
-            pieza.dataset.v = pfAzar(familia, variantes);
             folio.appendChild(pieza);
         });
     });
@@ -81,73 +35,95 @@ function pfFolioIniciar(raiz) {
 document.addEventListener("DOMContentLoaded", function () { pfFolioIniciar(); });
 
 /* ============================================================
-   Tablón (.pf-board) · crea la capa de madera de cada tablón:
-       borde de arriba + N tablones (centro) + borde de abajo (volteado)
-   N = tablones enteros que caben en el alto (se recalcula al cambiar de tamaño).
-   Cada tira escoge al azar su variante (--tablon-img-borde-1/2/3 y
-   --tablon-img-centro-1/2/3); cada tablón central conserva la suya al redimensionar.
-   Si añades tablones dinámicamente, llama a pfTablonIniciar(contenedor).
+   Desplazamiento SUAVE con la rueda del ratón (en toda la web)
+   Se ajusta con dos variables del :root de Css/styles.css:
+     --scroll-suavidad (0 a 1): parte del camino que recorre en cada fotograma.
+         Más BAJO = más suave y "con inercia" (ej. 0.08) · más ALTO = más directo (ej. 0.3)
+         1 = sin suavizado (como el navegador)
+     --scroll-velocidad: cuánto avanza cada golpe de rueda (1 = normal, 1.5 = más, 0.7 = menos)
+   Si el sistema tiene activado "reducir movimiento", no se suaviza.
+   Otros scripts pueden usarlo: pfScrollSuave(elemento, "x" o "y", píxeles)
    ============================================================ */
-var pfTablonObservador = "ResizeObserver" in window ? new ResizeObserver(function (entradas) {
-    entradas.forEach(function (e) { pfTablonAjustar(e.target); });
-}) : null;
+var pfScrollSuave = (function () {
+    var estados = new WeakMap();
+    var reducir = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-function pfTablonIniciar(raiz) {
-    (raiz || document).querySelectorAll(".pf-board").forEach(function (tablon) {
-        if (tablon.querySelector(":scope > .pf-tablon-capa")) return;   // ya tiene su capa
-        var bordes = pfVariantes(tablon, "--tablon-img-borde-");
-        var capa = document.createElement("span");
-        capa.className = "pf-tablon-capa";
-        capa.setAttribute("aria-hidden", "true");
-        ["", " pf-tablon-borde-abajo"].forEach(function (extra) {
-            var borde = document.createElement("span");
-            borde.className = "pf-tablon-borde" + extra;
-            borde.dataset.v = pfAzar("tablon-borde", bordes);
-            capa.appendChild(borde);
-        });
-        tablon.insertBefore(capa, tablon.firstChild);
-        tablon._pfCentros = [];   // variantes ya escogidas para cada tablón central
-        pfTablonAjustar(tablon);
-        if (pfTablonObservador) pfTablonObservador.observe(tablon);
-    });
-}
-
-function pfTablonAjustar(tablon) {
-    var capa = tablon.querySelector(":scope > .pf-tablon-capa");
-    if (!capa) return;
-    var estilo = getComputedStyle(tablon);
-    var escala = parseFloat(estilo.getPropertyValue("--tablon-escala")) || 0.22;
-    var altoBorde = (parseFloat(estilo.getPropertyValue("--tablon-img-borde")) || 349) * escala;
-    var altoTablon = (parseFloat(estilo.getPropertyValue("--tablon-img-tablon")) || 690) * escala;
-
-    // Igual que antes (border-image "round"): nº entero de tablones, estirados para llenar
-    var n = Math.max(1, Math.round((tablon.offsetHeight - 2 * altoBorde) / altoTablon));
-    var centros = capa.querySelectorAll(".pf-tablon-centro");
-    if (centros.length === n) return;
-
-    var variantes = pfVariantes(tablon, "--tablon-img-centro-");
-    while (tablon._pfCentros.length < n) tablon._pfCentros.push(pfAzar("tablon-centro", variantes));
-    centros.forEach(function (c) { c.remove(); });
-    var abajo = capa.lastChild;
-    for (var i = 0; i < n; i++) {
-        var centro = document.createElement("span");
-        centro.className = "pf-tablon-centro";
-        centro.dataset.v = tablon._pfCentros[i];
-        capa.insertBefore(centro, abajo);
+    function ajustes() {
+        var e = getComputedStyle(document.documentElement);
+        var s = parseFloat(e.getPropertyValue("--scroll-suavidad"));
+        var v = parseFloat(e.getPropertyValue("--scroll-velocidad"));
+        return { suavidad: s > 0 && s <= 1 ? s : 0.12, velocidad: v > 0 ? v : 1 };
     }
-}
 
-/* Tablón sin arte · si alguna imagen de la madera no carga (o no hay ninguna),
-   añade la clase "pf-sin-tablon" a <html> y el CSS pinta el tablón de marrón (--tablon-respaldo). */
+    function colocar(el, eje, valor) {   // "instant" para que el navegador no lo vuelva a suavizar
+        var o = { behavior: "instant" };
+        o[eje === "x" ? "left" : "top"] = valor;
+        el.scrollTo(o);
+    }
+
+    return function (el, eje, delta) {
+        var a = ajustes();
+        var prop = eje === "x" ? "scrollLeft" : "scrollTop";
+        var max = eje === "x" ? el.scrollWidth - el.clientWidth : el.scrollHeight - el.clientHeight;
+        var porEl = estados.get(el) || {};
+        estados.set(el, porEl);
+        var st = porEl[eje] || (porEl[eje] = { corriendo: false });
+        if (!st.corriendo) st.pos = st.objetivo = el[prop];          // parte de donde esté (barra, teclado...)
+        st.objetivo = Math.max(0, Math.min(max, st.objetivo + delta * a.velocidad));
+
+        if (a.suavidad >= 1 || reducir.matches) { colocar(el, eje, st.objetivo); st.pos = st.objetivo; return; }
+        if (st.corriendo) return;
+        st.corriendo = true;
+        (function paso() {
+            var dif = st.objetivo - st.pos;
+            if (Math.abs(dif) < 0.5) { colocar(el, eje, st.objetivo); st.corriendo = false; return; }
+            st.pos += dif * a.suavidad;
+            colocar(el, eje, st.pos);
+            requestAnimationFrame(paso);
+        })();
+    };
+})();
+
+(function () {
+    // ¿Qué hay que desplazar? El primer elemento (desde el ratón hacia fuera) que pueda moverse
+    // en vertical en ese sentido; si ninguno, la página.
+    function puedeMoverse(el, delta) {
+        var max = el.scrollHeight - el.clientHeight;
+        return max > 1 && (delta > 0 ? el.scrollTop < max - 1 : el.scrollTop > 0);
+    }
+    function buscar(desde, delta) {
+        for (var el = desde; el && el !== document.body && el !== document.documentElement; el = el.parentElement) {
+            if (!(el instanceof Element)) continue;
+            var oy = getComputedStyle(el).overflowY;
+            if ((oy === "auto" || oy === "scroll") && puedeMoverse(el, delta)) return el;
+        }
+        var pagina = document.scrollingElement || document.documentElement;
+        return puedeMoverse(pagina, delta) ? pagina : null;
+    }
+
+    window.addEventListener("wheel", function (e) {
+        if (e.defaultPrevented || e.ctrlKey) return;                      // otro script ya lo usó / zoom
+        if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;             // gesto horizontal: lo deja tal cual
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        var delta = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? window.innerHeight : 1);
+        var el = buscar(e.target, delta);
+        if (!el) return;
+        e.preventDefault();
+        pfScrollSuave(el, "y", delta);
+    }, { passive: false });
+})();
+
+/* ============================================================
+   Tablón sin arte · si alguna imagen de .pf-board no carga, añade la clase
+   "pf-sin-tablon" a <html> y el CSS pinta el tablón de marrón (--tablon-respaldo).
+   ============================================================ */
 function pfTablonComprobar() {
-    var tiras = document.querySelectorAll(".pf-tablon-capa > *");
-    if (!tiras.length) return;
+    var tablon = document.querySelector(".pf-board");
+    if (!tablon) return;
+    var estilo = getComputedStyle(tablon);
+    var texto = estilo.backgroundImage + " " + estilo.borderImageSource;
     var urls = [];
-    tiras.forEach(function (t) {
-        getComputedStyle(t).borderImageSource.replace(/url\(["']?([^"')]+)["']?\)/g, function (_, u) {
-            if (urls.indexOf(u) < 0) urls.push(u);
-        });
-    });
+    texto.replace(/url\(["']?([^"')]+)["']?\)/g, function (_, u) { urls.push(u); });
 
     function sinArte() { document.documentElement.classList.add("pf-sin-tablon"); }
     if (!urls.length) { sinArte(); return; }
@@ -158,10 +134,7 @@ function pfTablonComprobar() {
     });
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-    pfTablonIniciar();
-    pfTablonComprobar();
-});
+document.addEventListener("DOMContentLoaded", pfTablonComprobar);
 
 /* ============================================================
    Igualar alto (.pf-igualar-alto) · las imágenes de la columna intentan sumar
