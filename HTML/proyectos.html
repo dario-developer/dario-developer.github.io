@@ -9,6 +9,7 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
         <!-- Mi css -->
+        <link rel="stylesheet" href="../Css/decoracion-generada.css">  <!-- medidas de las piezas (lo genera media/img/Deco/generar-decoracion.ps1) -->
         <link rel="stylesheet" href="../Css/styles.css">
     </head>
 
@@ -18,7 +19,7 @@
         </a>
 
         <!-- CARTEL de cabecera: pequeño y centrado (.pf-cartel, variables --cartel-* del css) -->
-        <header class="pf-cartel pf-cartel-pagina">
+        <header class="pf-cartel pf-cartel-pagina" data-palos="0.2 0.8" data-palos-hasta=".pf-proyecto-tablon">  <!-- palos del cartel: bajan hasta el primer tablón que encuentren debajo -->
             <h1>Proyectos</h1>
         </header>
 
@@ -32,7 +33,8 @@
 
             <!-- PROYECTO 1 -->
             <section class="pf-proyecto pf-proyecto-der">
-                <div class="pf-board pf-proyecto-tablon">
+                <!-- data-palos: UN palo por tablón, en el lado de fuera (pegado al borde de la pantalla), hasta el suelo -->
+                <div class="pf-board pf-proyecto-tablon" data-palos="0.95">
                     <a class="pf-card pf-folio pf-proyecto-hoja" href="plantilla.html">
                         <img src="https://picsum.photos/seed/flipper/400/500" alt="Imagen de Flipper on recoil">
                         <p class="pf-card-text">Flipper on recoil</p>
@@ -43,7 +45,7 @@
 
             <!-- PROYECTO 2 -->
             <section class="pf-proyecto pf-proyecto-izq">
-                <div class="pf-board pf-proyecto-tablon">
+                <div class="pf-board pf-proyecto-tablon" data-palos="0.05">
                     <a class="pf-card pf-folio pf-proyecto-hoja" href="plantilla.html">
                         <img src="https://picsum.photos/seed/celtic/400/500" alt="Imagen de Celtic trail">
                         <p class="pf-card-text">Celtic trail</p>
@@ -75,8 +77,13 @@
             </section>
 
         </main>
+        <!-- SUELO: footer vacío con el césped de fondo (los palos se clavan en él) -->
+        <footer class="pf-suelo" aria-hidden="true"></footer>
+
 
         <!-- JS de los folios (crea las esquinas y lados de cada .pf-folio) -->
         <script src="../Js/script.js"></script>
+        <!-- Traducción español / inglés (el idioma se elige en el index) -->
+        <script src="../Js/idioma.js"></script>
     </body>
 </html>

@@ -177,6 +177,16 @@
         wrapper._pfMin = min;
 
         cajas.forEach(function (c) { posicionar(c, min); });
+
+        // Fondo de las cajas de TEXTO (descripciones): una nebulosa entera al azar por caja
+        // (azar natural, --texto-nebulosa-1..4). Se elige aquí, antes de repartir los eventos,
+        // para que se conserve al pasar de escritorio a móvil (el reparto parte de este HTML).
+        if (typeof pfAzar === "function" && typeof pfVariantes === "function") {
+            var nebulosas = pfVariantes(document.documentElement, "--texto-nebulosa-", 4);
+            wrapper.querySelectorAll(".timeline-cara .line:not(.timeline-box)").forEach(function (c) {
+                if (!c.dataset.nebulosa) c.dataset.nebulosa = pfAzar("texto-nebulosa", nebulosas);
+            });
+        }
         repartirEventos(wrapper);
 
         // Reajusta el tamaño de los textos si cambia el ancho de pantalla o termina de cargar la fuente

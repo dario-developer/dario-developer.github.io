@@ -144,7 +144,7 @@
        ══════════════════════════════════════════════════════════════ */
     --marco-img-esquina: url("../media/img/Deco/Hojas/foto/recortes/esquina-1.png");
     --marco-img-lado-1:  url("../media/img/Deco/Hojas/foto/recortes/lado-1.png");  /* ← LADO 1 */
-    --marco-img-lado-2:  none;                                                          /* ← LADO 2 */
+    --marco-img-lado-2:  url("../media/img/Deco/Hojas/foto/recortes/lado-2.png");  /* ← LADO 2 (cada lado escoge al azar entre los que haya) */
     --marco-img-lado-3:  none;                                                          /* ← LADO 3 */
     --marco-img-centro:  url("../media/img/Deco/Hojas/foto/centro.png");
     --marco-esquina-tam: 440;      /* medidas reales de los archivos (solo el número) */
@@ -352,7 +352,7 @@ h1{
 }
 
 /* Los textos pueden encogerse y partir línea en vez de empujar fuera de la pantalla */
-.pf-header > p{
+.pf-header p{                  /* (el JS mete el contenido en la placa: no son hijos directos) */
     flex: 1 1 0;
     min-width: 0;
     margin: 0;
@@ -597,10 +597,170 @@ h1{
     margin-inline: auto;
 }
 
-.pf-cartel-pagina > h1{
+.pf-cartel-pagina h1{
     margin: 0;
     font-size: clamp(1.5rem, 5vw, 2.5rem);
     text-align: center;
+}
+
+/* ============================================================
+   CARTEL CON TABLONES (todas las páginas menos la línea de tiempo)
+   Js/script.js convierte cada .pf-cartel en DOS tablones, uno encima del otro:
+       .pf-cartel-tablon  → tablón CLARO que sujeta el cartel (todo el header)
+       .pf-placa          → placa OSCURA con clavos que enmarca el título (va dentro)
+   Cada uno escoge al azar una de sus tiras (Css/decoracion-generada.css):
+       extremo izquierdo | tramo central (se REPITE a lo ancho) | extremo derecho
+   Nada se deforma: el alto es fijo (--cartel-alto) y los extremos y el tramo se
+   escalan a ese alto manteniendo su proporción.
+   ============================================================ */
+.pf-cartel-tablon{
+    /* ← ALTO DEL TABLÓN (lo demás sale de aquí). En las páginas: según el título; en el index: según el logo */
+    --cartel-alto: calc(clamp(1.5rem, 5vw, 2.5rem) * 2.7);
+    --cartel-placa-proporcion: 0.72;      /* ← alto de la placa / alto del tablón */
+    --_k: calc(var(--cartel-alto) / var(--cartel-tablon-alto-img));   /* px de pantalla por px de imagen */
+    box-sizing: border-box;
+    height: var(--cartel-alto);
+    min-height: 0;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 calc(var(--cartel-alto) * 0.3);
+    background: none;                     /* sin el marrón de "cartel sin arte" */
+    border: 0 solid transparent;
+    /* 3 piezas: extremos fijos + tramo central repetido. (El 1 de arriba/abajo es un truco para
+       que el tramo central se escale igual que los extremos; esa fila de la imagen es transparente.) */
+    border-image-source: var(--_img);
+    border-image-slice: 1 var(--_der) 1 var(--_izq) fill;
+    border-image-width: var(--_k) calc(var(--_der) * var(--_k)) var(--_k) calc(var(--_izq) * var(--_k));
+    border-image-repeat: round stretch;
+}
+.pf-sin-cartel .pf-cartel.pf-cartel-tablon{ background: none; }
+
+/* Index: el alto lo marca el logo (la placa tiene que poder contenerlo) */
+.pf-header.pf-cartel-tablon{
+    --cartel-alto: calc((clamp(48px, 16vw, var(--titular-logo)) + 1.4rem) / var(--cartel-placa-proporcion));
+}
+
+.pf-placa{
+    --placa-alto: calc(var(--cartel-alto) * var(--cartel-placa-proporcion));
+    --_k: calc(var(--placa-alto) / var(--cartel-placa-alto-img));
+    box-sizing: border-box;
+    height: var(--placa-alto);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0 calc(var(--placa-alto) * 0.42);    /* los clavos quedan fuera del texto */
+    color: var(--cartel-color-texto);
+    border: 0 solid transparent;
+    border-image-source: var(--_img);
+    border-image-slice: 1 var(--_der) 1 var(--_izq) fill;
+    border-image-width: var(--_k) calc(var(--_der) * var(--_k)) var(--_k) calc(var(--_izq) * var(--_k));
+    border-image-repeat: round stretch;
+}
+.pf-header > .pf-placa{                   /* index: la placa ocupa el tablón y reparte nombre · logo · rol */
+    flex: 1 1 auto;
+    justify-content: space-between;
+    min-width: 0;
+}
+
+/* ============================================================
+   PALOS (.pf-palo) · sujetan los tablones y los clavan en el suelo
+   Uso (en el HTML, en el cartel o tablón que sujetan):
+       data-palos="0.1 0.9"          → un palo a esa fracción del ANCHO del elemento
+       data-palos-hasta=".pf-board"  → (opcional) el palo acaba escondido detrás del primer
+                                       elemento así que haya DEBAJO; sin esto, baja hasta el suelo
+   Js/script.js los pone (en una capa por DETRÁS de tablones y carteles): cada palo empieza
+   asomando un poco por encima de SU elemento (--palo-asoma) y baja. Punta al azar + tramo
+   que se repite hacia abajo, y a veces en espejo.
+   El grosor (--palo-ancho) es independiente del alto de las piezas (--palo-escala): el palo
+   se ensancha sin que se alarguen la punta ni el tramo (el dibujo lo aguanta sin notarse).
+   ============================================================ */
+:root{
+    --palo-ancho: clamp(26px, 3.2vw, 46px);   /* ← grosor del palo en pantalla */
+    --palo-escala: clamp(14px, 1.8vw, 26px);  /* ← "tamaño" de la punta y el tramo (su alto sale de aquí) */
+    --palo-asoma: 22px;                       /* ← cuánto asoma el palo por encima de lo que sujeta */
+}
+body:has(.pf-palos){ position: relative; }    /* referencia de la capa de palos */
+.pf-palos{
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 0;
+    z-index: 0;
+    pointer-events: none;
+}
+.pf-palo{
+    position: absolute;
+    width: var(--palo-ancho);
+    overflow: hidden;
+}
+.pf-palo{
+    --_punta-alto: calc(var(--palo-escala) * var(--palo-punta-alto-img) / var(--palo-ancho-img));
+    --_tramo-alto: calc(var(--palo-escala) * var(--palo-tramo-alto-img) / var(--palo-ancho-img));
+}
+.pf-palo-punta,
+.pf-palo-tramo{
+    position: absolute;
+    left: 0;
+    width: 100%;
+    background-repeat: no-repeat;
+}
+.pf-palo-punta{
+    top: 0;
+    height: var(--_punta-alto);
+    background-size: 100% 100%;
+}
+.pf-palo-tramo{
+    top: calc(var(--_punta-alto) - 1px);       /* -1px: solapa con la punta */
+    bottom: 0;
+    background-image: var(--palo-tramo);
+    background-size: 100% var(--_tramo-alto);
+    background-repeat: repeat-y;
+}
+/* Lo que va delante de los palos */
+.pf-cartel,
+.pf-board{
+    z-index: 1;
+}
+
+/* ============================================================
+   SUELO (footer .pf-suelo) · césped que se repite a lo ancho, de borde a borde
+   de la pantalla. La página se estira para que siempre quede abajo del todo.
+   ============================================================ */
+:root{
+    --suelo-alto: clamp(80px, 11.25vw, 150px); /* ← alto del césped en pantalla (la imagen se amplía sin deformarse y se recorta por los lados) */
+}
+html{
+    overflow-x: clip;                         /* el césped mide toda la pantalla: que no salga scroll lateral
+                                                 (en <html>, no en <body>: el body puede ser un .container y lo recortaría) */
+}
+body:has(> .pf-suelo){
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+/* Nada se encoge para caber (si no, con un body de alto fijo -.h-md-100 del index- el
+   cartel se aplastaba hasta desaparecer en pantallas bajas, como las de portátil) */
+body:has(> .pf-suelo) > *{
+    flex-shrink: 0;
+}
+.pf-suelo{
+    position: relative;
+    z-index: 2;                               /* por delante de los palos: se ven clavados */
+    flex-shrink: 0;
+    height: var(--suelo-alto);
+    margin-top: auto;                         /* siempre abajo del todo */
+    margin-inline: calc(50% - 50vw);          /* de borde a borde aunque el body sea un .container */
+    width: 100vw;
+    background-image: var(--suelo-img);
+    background-repeat: repeat-x;
+    background-size: auto 100%;
+    background-position: center bottom;       /* al ampliarse se recorta igual por los dos lados */
+    pointer-events: none;
 }
 
 /* Envoltorio que crea el JS alrededor de una <img> con .pf-folio o .pf-marco:
@@ -923,18 +1083,19 @@ h1{
         display: block;
     }
 
-    /* Tablet: tablones más anchos */
+    /* Tablet: tablones más anchos y hojas algo más pequeñas (que no ocupen casi todo el alto del tablón) */
     :root{
         --proyecto-ancho: 65%;
+        --proyecto-hoja-ancho: 30%;
     }
 }
 
 /* Móvil: mismo diseño que en escritorio (hoja + texto en fila, tablones alternos), a escala */
 @media (max-width: 768px){
     :root{
-        --proyecto-hoja-ancho: 34vw;           /* ancho de la hoja (medida fija para poder alinearlas) */
+        --proyecto-hoja-ancho: 19vw;           /* ancho de la hoja en TABLET (medida fija para poder alinearlas); en móvil, más abajo */
         --proyecto-pad-x: 0.5rem;              /* margen interior izquierda/derecha del tablón */
-        --proyecto-tablon-padding: 0.6rem var(--proyecto-pad-x);
+        --proyecto-tablon-padding: 1.9rem var(--proyecto-pad-x);   /* tablet: margen arriba/abajo para que la hoja no ocupe todo el alto */
         --proyecto-tablon-repeticiones: 0;     /* el tablón se ajusta a su contenido */
         --proyecto-texto-tamano: clamp(0.6rem, 2.9vw, 0.9rem);
 
@@ -967,6 +1128,8 @@ h1{
         /* Proyectos: tablones más anchos SOLO en móvil, para que quepa el texto
            (la hoja no cambia; las hojas de tablones alternos ya no quedan en la misma columna) */
         --proyecto-ancho: var(--proyecto-ancho-movil, 88%);
+        --proyecto-hoja-ancho: 34vw;           /* ancho de la hoja en MÓVIL */
+        --proyecto-tablon-padding: 0.6rem var(--proyecto-pad-x);
         --cartel-padding: 0.5rem 0.75rem;
         --carteles-separacion: 1.5rem;
     }
@@ -976,4 +1139,103 @@ h1{
     .h-md-100{
         height: 100%;
     }
+}
+/* ============================================================
+   INDEX EN UNA PANTALLA (portátil o más: ≥ 993px) · .pf-board-pantalla
+   El index intenta caber entero en el alto de la pantalla (cartel + tablón + césped).
+   Si no cabe, el tablón principal se ENCOGE (pierde tablones de madera) hasta que:
+     · o todo cabe en la pantalla,
+     · o el tablón ya mide solo lo de sus hojas + un margen (--tablon-pantalla-margen),
+       y entonces la página baja con normalidad (las hojas nunca se aplastan).
+   En pantallas muy altas el tablón no crece más de su tamaño normal (el césped baja).
+   ============================================================ */
+@media (min-width: 993px){
+    body:has(.pf-board-pantalla){
+        height: auto;                          /* (en vez del 100% fijo de .h-md-100: puede crecer si no cabe) */
+    }
+    .pf-board-pantalla{
+        --tablon-pantalla-margen: 2.5rem;      /* ← margen mínimo arriba/abajo entre las hojas y el borde del tablón */
+        flex: 1 1 0;                           /* reparte el alto que queda en la pantalla */
+        flex-shrink: 1;
+        min-height: auto;                      /* como mínimo: lo que miden sus hojas + el margen */
+        max-height: calc(var(--tablon-alto) * var(--tablon-repeticiones) * 1px);   /* como mucho: su tamaño normal */
+        padding-block: var(--tablon-pantalla-margen);
+    }
+}
+
+/* ============================================================
+   IDIOMA (.pf-idiomas) · banderas arriba del tablón del index, enmarcadas en la hoja
+   azul de las fotos (.pf-marco). Js/idioma.js marca la del idioma actual con .activo.
+     · MÓVIL (≤ 576px): una encima de otra, del ancho de las hojas de abajo.
+     · TABLET y ESCRITORIO: en fila, una en cada extremo (alineadas con las hojas de
+       los lados), más anchas según la pantalla (--idioma-bandera).
+   ============================================================ */
+.pf-idiomas{
+    --idioma-bandera: clamp(96px, 13vw, 170px);  /* ← ancho de cada bandera (tablet y escritorio) */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: clamp(0.75rem, 2vw, 1.25rem);
+    position: relative;
+    z-index: 1;
+}
+.pf-idioma{
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    line-height: 0;
+    opacity: 0.6;                                /* la del idioma que NO está activo, más apagada */
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    --marco-escala: 0.06;                        /* hoja azul algo más fina que la de las fotos */
+    --marco-padding: 0.25rem;
+}
+.pf-idioma:hover,
+.pf-idioma:focus-visible{
+    opacity: 1;
+    transform: translateY(-2px) rotate(-1.5deg);
+    outline: none;
+}
+.pf-idioma.activo{
+    opacity: 1;
+    cursor: default;
+    transform: none;
+}
+.pf-idioma .pf-envoltorio{
+    display: block;
+}
+.pf-idioma img{
+    display: block;
+    width: var(--idioma-bandera);
+    max-width: 100%;
+    aspect-ratio: 3 / 2;                         /* las dos banderas miden igual (la inglesa se recorta un poco, no se deforma) */
+    height: auto;
+    object-fit: cover;
+    border-radius: 0;
+}
+@media (max-width: 576px){
+    .pf-idiomas{
+        flex-direction: column;
+        align-items: stretch;                    /* del ancho de las hojas */
+    }
+    .pf-idioma,
+    .pf-idioma .pf-envoltorio{
+        width: 100%;
+    }
+    .pf-idioma img{
+        width: 100%;
+    }
+}
+
+/* Cambio de idioma (index): SOLO los textos que cambian se desvanecen y vuelven a aparecer
+   ya traducidos (Js/idioma.js les pone .pf-idioma-cambia y .pf-idioma-saliendo en <html>). */
+:root{
+    --idioma-fade: 0.3s;                         /* ← duración de cada mitad del fundido */
+}
+.pf-idioma-fundido .pf-idioma-cambia{
+    transition: opacity var(--idioma-fade) ease;
+}
+.pf-idioma-saliendo .pf-idioma-cambia{
+    opacity: 0;
 }

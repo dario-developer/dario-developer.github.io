@@ -1,0 +1,38 @@
+/* GENERADO por media/img/Deco/generar-decoracion.ps1 - no lo edites a mano: vuelve a ejecutar el script.
+   Medidas en px de las IMAGENES (el tamano en pantalla lo decide Css/styles.css). */
+:root{
+    --cartel-tablon-1: url("../media/img/Deco/Cartel/tablon/tiras/tablon-1.png");
+    --cartel-tablon-2: url("../media/img/Deco/Cartel/tablon/tiras/tablon-2.png");
+    --cartel-tablon-3: url("../media/img/Deco/Cartel/tablon/tiras/tablon-3.png");
+    --cartel-tablon-4: url("../media/img/Deco/Cartel/tablon/tiras/tablon-4.png");
+    --cartel-tablon-alto-img: 656;
+    --cartel-placa-1: url("../media/img/Deco/Cartel/placa/tiras/placa-1.png");
+    --cartel-placa-2: url("../media/img/Deco/Cartel/placa/tiras/placa-2.png");
+    --cartel-placa-3: url("../media/img/Deco/Cartel/placa/tiras/placa-3.png");
+    --cartel-placa-4: url("../media/img/Deco/Cartel/placa/tiras/placa-4.png");
+    --cartel-placa-5: url("../media/img/Deco/Cartel/placa/tiras/placa-5.png");
+    --cartel-placa-6: url("../media/img/Deco/Cartel/placa/tiras/placa-6.png");
+    --cartel-placa-alto-img: 558;
+    --palo-punta-1: url("../media/img/Deco/Palo/tiras/punta-1.png");
+    --palo-punta-2: url("../media/img/Deco/Palo/tiras/punta-2.png");
+    --palo-tramo: url("../media/img/Deco/Palo/tiras/tramo.png");
+    --palo-ancho-img: 94;
+    --palo-punta-alto-img: 560;
+    --palo-tramo-alto-img: 698;
+    --suelo-img: url("../media/img/Deco/Suelo/tiras/cesped.png");
+    --suelo-ancho-img: 1500;
+    --suelo-alto-img: 264;
+}
+/* Ancho (px de la imagen) del extremo izquierdo y derecho de cada variante */
+.pf-cartel-tablon[data-v="1"]{ --_img: var(--cartel-tablon-1); --_izq: 96; --_der: 152; }
+.pf-cartel-tablon[data-v="2"]{ --_img: var(--cartel-tablon-2); --_izq: 112; --_der: 120; }
+.pf-cartel-tablon[data-v="3"]{ --_img: var(--cartel-tablon-3); --_izq: 104; --_der: 140; }
+.pf-cartel-tablon[data-v="4"]{ --_img: var(--cartel-tablon-4); --_izq: 120; --_der: 112; }
+.pf-placa[data-v="1"]{ --_img: var(--cartel-placa-1); --_izq: 208; --_der: 196; }
+.pf-placa[data-v="2"]{ --_img: var(--cartel-placa-2); --_izq: 156; --_der: 204; }
+.pf-placa[data-v="3"]{ --_img: var(--cartel-placa-3); --_izq: 196; --_der: 208; }
+.pf-placa[data-v="4"]{ --_img: var(--cartel-placa-4); --_izq: 152; --_der: 144; }
+.pf-placa[data-v="5"]{ --_img: var(--cartel-placa-5); --_izq: 204; --_der: 156; }
+.pf-placa[data-v="6"]{ --_img: var(--cartel-placa-6); --_izq: 144; --_der: 152; }
+.pf-palo-punta[data-v="1"]{ background-image: var(--palo-punta-1); }
+.pf-palo-punta[data-v="2"]{ background-image: var(--palo-punta-2); }

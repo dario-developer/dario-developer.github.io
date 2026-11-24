@@ -56,6 +56,13 @@
     --cielo-nebulosa-tam-max: 1;           /* ← tamaño máximo */
     --cielo-nebulosa-opacidad-min: 0.18;   /* ← transparencia: más bajo = más tenue */
     --cielo-nebulosa-opacidad-max: 0.35;
+
+    /* NEBULOSAS DETRÁS DE LOS TEXTOS (descripciones): las mismas, pero RECORTADAS a su dibujo
+       (sin el margen transparente) para que envuelvan bien el texto. Una al azar por texto. */
+    --texto-nebulosa-1: url("../media/img/Deco/Cielo/recortes/nebulosa-1.png");   /* ← NEBULOSA 1 */
+    --texto-nebulosa-2: url("../media/img/Deco/Cielo/recortes/nebulosa-2.png");   /* ← NEBULOSA 2 */
+    --texto-nebulosa-3: url("../media/img/Deco/Cielo/recortes/nebulosa-3.png");   /* ← NEBULOSA 3 */
+    --texto-nebulosa-4: url("../media/img/Deco/Cielo/recortes/nebulosa-4.png");   /* ← NEBULOSA 4 */
 }
 
 /* Con el cielo por piezas montado, la imagen de respaldo de <html> sobra (se queda su color) */
@@ -310,6 +317,39 @@ html{
     height: auto;
     min-height: var(--grosor);
 }
+
+/* NEBULOSA DETRÁS DEL TEXTO de cada descripción: una entera, escogida al azar
+   (Js/timeline.js pone data-nebulosa = 1..4 en la caja). No ocupa la caja: envuelve
+   el PÁRRAFO, un poco más grande que él para que su forma redondeada lo coja entero
+   (se estira/deforma para encajar; la imagen está hecha para verse bien así).
+   Se ajusta con:
+       --texto-nebulosa-margen-x / -y → cuánto sobresale del texto por cada lado
+                                        (en % del ancho/alto del texto; más = más holgada)
+       --texto-nebulosa-opacidad      → intensidad (la imagen se pinta 2 veces para que se note) */
+.line:not(.timeline-box){
+    --texto-nebulosa-margen-x: 30%;
+    --texto-nebulosa-margen-y: 60%;
+    --texto-nebulosa-opacidad: 0.9;
+}
+.line:not(.timeline-box) > p{
+    position: relative;
+    z-index: 0;                          /* la nebulosa (::before, z-index -1) queda detrás del texto */
+}
+.line:not(.timeline-box) > p::before{
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: calc(-1 * var(--texto-nebulosa-margen-y)) calc(-1 * var(--texto-nebulosa-margen-x));
+    background-image: var(--_nebulosa, none), var(--_nebulosa, none);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    opacity: var(--texto-nebulosa-opacidad);
+    pointer-events: none;
+}
+.line:not(.timeline-box)[data-nebulosa="1"]{ --_nebulosa: var(--texto-nebulosa-1); }
+.line:not(.timeline-box)[data-nebulosa="2"]{ --_nebulosa: var(--texto-nebulosa-2); }
+.line:not(.timeline-box)[data-nebulosa="3"]{ --_nebulosa: var(--texto-nebulosa-3); }
+.line:not(.timeline-box)[data-nebulosa="4"]{ --_nebulosa: var(--texto-nebulosa-4); }
 
 /* SOLO ESCRITORIO: cada fila de descripciones se pega a SU línea secundaria (la de arriba)
    y se aleja de la línea siguiente. Así queda claro a qué línea acompaña cada texto.
@@ -664,9 +704,11 @@ html{
         width: auto;
         height: auto;
         min-height: 0;
-        overflow-y: auto;
+        overflow: visible;            /* sin recorte: así la nebulosa de detrás del texto no se corta en recto */
         justify-content: flex-start;
         font-size: 0.75rem;
+        --texto-nebulosa-margen-x: 9%;   /* columna estrecha: la nebulosa sobresale poco a los lados (no llega al borde de la pantalla) */
+        --texto-nebulosa-margen-y: 35%;
     }
 
     .line:not(.timeline-box) p{

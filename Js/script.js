@@ -78,7 +78,129 @@ function pfFolioIniciar(raiz) {
     });
 }
 
-document.addEventListener("DOMContentLoaded", function () { pfFolioIniciar(); });
+document.addEventListener("DOMContentLoaded", function () { pfFolioIniciar(); pfCartelIniciar(); });
+
+/* ============================================================
+   CARTEL CON TABLONES · cada .pf-cartel (menos el de la línea de tiempo) pasa a ser
+   un tablón claro (.pf-cartel-tablon) con una placa oscura encima (.pf-placa) que
+   enmarca su contenido. Cada uno escoge al azar su variante (azar natural).
+   Las variantes vienen de Css/decoracion-generada.css (--cartel-tablon-N / --cartel-placa-N).
+   ============================================================ */
+function pfCartelIniciar(raiz) {
+    var raizCss = document.documentElement;
+    var hayArte = getComputedStyle(raizCss).getPropertyValue("--cartel-tablon-1").trim();
+    if (!hayArte || hayArte === "none") return;                  // sin las tiras: se queda el cartel de siempre
+    var tablones = pfVariantes(raizCss, "--cartel-tablon-", 9);
+    var placas = pfVariantes(raizCss, "--cartel-placa-", 9);
+
+    (raiz || document).querySelectorAll(".pf-cartel").forEach(function (cartel) {
+        if (cartel.closest(".timeline-cabecera") || cartel.classList.contains("pf-cartel-tablon")) return;
+        cartel.classList.add("pf-cartel-tablon");
+        cartel.dataset.v = pfAzar("cartel-tablon", tablones);
+        var placa = document.createElement("div");
+        placa.className = "pf-placa";
+        placa.dataset.v = pfAzar("cartel-placa", placas);
+        Array.prototype.slice.call(cartel.childNodes).forEach(function (n) {
+            if (n.nodeType === 1 && n.classList.contains("pf-folio-pieza")) return;   // las piezas del folio se quedan fuera
+            placa.appendChild(n);
+        });
+        cartel.insertBefore(placa, cartel.firstChild);
+    });
+}
+
+/* ============================================================
+   PALOS · data-palos="0.1 0.9" en un elemento = un palo a esa fracción de su ancho.
+   Cada palo empieza asomando un poco por encima de SU elemento (--palo-asoma) y baja:
+     · hasta esconderse detrás del primer elemento de data-palos-hasta que haya debajo, o
+     · si no lo tiene, hasta clavarse en el césped del footer (.pf-suelo)
+       (sin suelo: hasta el final de la página).
+   Van en una capa (.pf-palos) por DETRÁS de carteles y tablones.
+   Cada palo escoge al azar su punta (--palo-punta-N) y si va en espejo; se recolocan
+   solos al cambiar el tamaño de la pantalla o al cargar imágenes.
+   ============================================================ */
+function pfPalosIniciar() {
+    var anclas = document.querySelectorAll("[data-palos]");
+    if (!anclas.length) return;
+    var raizCss = document.documentElement;
+    var punta1 = getComputedStyle(raizCss).getPropertyValue("--palo-punta-1").trim();
+    if (!punta1 || punta1 === "none") return;
+    var puntas = pfVariantes(raizCss, "--palo-punta-", 9);
+
+    var capa = document.createElement("div");
+    capa.className = "pf-palos";
+    capa.setAttribute("aria-hidden", "true");
+    document.body.appendChild(capa);
+
+    // Un palo por cada fracción de cada ancla; su aspecto (punta, espejo) se elige una vez
+    var palos = [];
+    anclas.forEach(function (ancla) {
+        (ancla.dataset.palos || "").trim().split(/\s+/).forEach(function (f) {
+            var x = parseFloat(f);
+            if (isNaN(x)) return;
+            var el = document.createElement("span");
+            el.className = "pf-palo";
+            var punta = document.createElement("span");
+            punta.className = "pf-palo-punta";
+            punta.dataset.v = pfAzar("palo-punta", puntas);
+            var tramo = document.createElement("span");
+            tramo.className = "pf-palo-tramo";
+            el.appendChild(punta); el.appendChild(tramo);
+            if (pfAzar("palo-espejo", [0, 1])) el.style.transform = "scaleX(-1)";
+            capa.appendChild(el);
+            palos.push({ el: el, ancla: ancla, x: x });
+        });
+    });
+
+    // Dónde acaba el palo de un ancla: detrás del primer elemento de data-palos-hasta que esté
+    // DEBAJO del ancla (escondido: a media altura de ese elemento, como mucho 80 px dentro),
+    // o clavado en la tierra del suelo.
+    // (x = centro del palo: solo cuenta un destino que esté justo DEBAJO del palo, el primero que encuentre)
+    function finDe(ancla, r, x) {
+        var sel = ancla.dataset.palosHasta;
+        if (sel) {
+            var mejor = null;
+            document.querySelectorAll(sel).forEach(function (el) {
+                if (el === ancla) return;
+                var d = el.getBoundingClientRect();
+                if (d.top <= r.bottom - 1 || x < d.left || x > d.right) return;
+                if (!mejor || d.top < mejor.top) mejor = d;
+            });
+            if (mejor) return mejor.top + Math.min(mejor.height / 2, 80);
+        }
+        var suelo = document.querySelector(".pf-suelo");
+        if (suelo) { var s = suelo.getBoundingClientRect(); return s.top + s.height * 0.55; }
+        return document.documentElement.scrollHeight - window.scrollY;
+    }
+
+    function colocar() {
+        var cuerpo = document.body.getBoundingClientRect();
+        var estilo = getComputedStyle(document.body);
+        var ox = cuerpo.left + parseFloat(estilo.borderLeftWidth), oy = cuerpo.top + parseFloat(estilo.borderTopWidth);
+        var asoma = parseFloat(getComputedStyle(raizCss).getPropertyValue("--palo-asoma")) || 22;
+        var ancho = parseFloat(getComputedStyle(palos[0].el).width) || 20;
+
+        palos.forEach(function (p) {
+            var r = p.ancla.getBoundingClientRect();
+            var arriba = Math.max(r.top - asoma, -window.scrollY);  // asoma por encima de SU elemento (sin salirse de la página)
+            var centro = r.left + r.width * p.x;
+            var abajo = finDe(p.ancla, r, centro);
+            var x = centro - ancho / 2;
+            p.el.style.left = (x - ox) + "px";
+            p.el.style.top = (arriba - oy) + "px";
+            p.el.style.height = Math.max(0, abajo - arriba) + "px";
+        });
+    }
+
+    var pendiente;
+    function programar() { cancelAnimationFrame(pendiente); pendiente = requestAnimationFrame(colocar); }
+    colocar();
+    window.addEventListener("resize", programar);
+    window.addEventListener("load", programar);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(programar);
+    if ("ResizeObserver" in window) new ResizeObserver(programar).observe(document.body);
+}
+
+document.addEventListener("DOMContentLoaded", function () { setTimeout(pfPalosIniciar, 0); });   // después de montar carteles y tablones
 
 /* ============================================================
    Desplazamiento SUAVE con la rueda del ratón (en toda la web)
