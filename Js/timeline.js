@@ -217,12 +217,122 @@
         }
     }
 
+    /* ------------------------------------------------------------
+       CIELO POR PIEZAS · crea .timeline-cielo dentro del contenedor (se desplaza con él)
+         · Estrellas: baldosas que cubren toda la línea (2:3, como las imágenes). En escritorio
+           ocupan el alto y van hacia la derecha; en móvil ocupan el ancho y van hacia abajo.
+           Cada una: variante + orientación (normal / espejo / volteada) con azar natural.
+         · Nebulosas: --cielo-nebulosas-por-pantalla de media; el recorrido se parte en tramos
+           y en cada tramo cae UNA en un sitio al azar (así no se amontonan ni dejan huecos).
+       Lo elegido se guarda: al cambiar de tamaño solo se recoloca (no se baraja de nuevo).
+       Devuelve la función que lo recoloca (o null si no hay arte ni azar disponibles).
+       ------------------------------------------------------------ */
+    var ORIENTACIONES = ["", "scaleX(-1)", "scaleY(-1)", "scale(-1, -1)"];
+
+    function crearCielo(contenedor) {
+        if (typeof pfAzar !== "function" || typeof pfVariantes !== "function") return null;
+        var raiz = document.documentElement;
+        var estilo = getComputedStyle(raiz);
+        function num(nombre, defecto) { var v = parseFloat(estilo.getPropertyValue(nombre)); return isNaN(v) ? defecto : v; }
+        function rango(a, b) { return a + Math.random() * (b - a); }
+
+        var estrellas = pfVariantes(raiz, "--cielo-estrellas-");
+        var nebulosas = pfVariantes(raiz, "--cielo-nebulosa-", 4);
+        var v1 = estilo.getPropertyValue("--cielo-estrellas-1").trim();
+        if (!v1 || v1 === "none") return null;                              // sin arte: se queda el cielo de respaldo
+
+        var combinaciones = [];                                             // variante × orientación
+        estrellas.forEach(function (v) { ORIENTACIONES.forEach(function (_, o) { combinaciones.push(v + "-" + o); }); });
+
+        var capa = document.createElement("div");
+        capa.className = "timeline-cielo";
+        capa.setAttribute("aria-hidden", "true");
+        contenedor.insertBefore(capa, contenedor.firstChild);
+        raiz.classList.add("pf-cielo-piezas");                              // apaga la imagen de respaldo de <html>
+
+        var est = { eje: null, baldosas: [], nebulosas: [] };
+
+        return function montar() {
+            var movil = MOVIL.matches, eje = movil ? "y" : "x";
+            if (est.eje !== eje) { est = { eje: eje, baldosas: [], nebulosas: [] }; capa.textContent = ""; }
+
+            capa.style.width = capa.style.height = "0px";                   // que no cuente al medir
+            var W = contenedor.scrollWidth, H = contenedor.scrollHeight;
+            var vw = contenedor.clientWidth, vh = contenedor.clientHeight;
+            capa.style.width = W + "px"; capa.style.height = H + "px";
+
+            // --- Estrellas (baldosas 2:3) ---
+            var bw = movil ? W : H / 1.5, bh = movil ? W * 1.5 : H;
+            var n = Math.ceil((movil ? H / bh : W / bw)) || 1;
+            while (est.baldosas.length < n) {
+                var c = pfAzar("cielo-estrellas", combinaciones).split("-");
+                var b = document.createElement("span");
+                b.className = "timeline-cielo-estrellas";
+                b.dataset.v = c[0];
+                b.style.transform = ORIENTACIONES[+c[1]];
+                capa.appendChild(b);
+                est.baldosas.push(b);
+            }
+            est.baldosas.forEach(function (b, i) {
+                b.style.display = i < n ? "" : "none";
+                b.style.width = bw + "px"; b.style.height = bh + "px";
+                b.style.left = (movil ? 0 : i * bw) + "px";
+                b.style.top = (movil ? i * bh : 0) + "px";
+            });
+
+            // --- Nebulosas (una por tramo, en un sitio al azar del tramo) ---
+            var largo = movil ? H : W, pantalla = movil ? vh : vw, ancho = movil ? W : H;
+            var tramo = pantalla / Math.max(0.1, num("--cielo-nebulosas-por-pantalla", 1.3));
+            var m = Math.ceil(largo / tramo);
+            var lado = Math.min(vw, vh);
+            while (est.nebulosas.length < m) {
+                var k = est.nebulosas.length;
+                var e = document.createElement("span");
+                e.className = "timeline-cielo-nebulosa";
+                e.dataset.v = pfAzar("cielo-nebulosa", nebulosas);
+                e.style.opacity = rango(num("--cielo-nebulosa-opacidad-min", 0.18), num("--cielo-nebulosa-opacidad-max", 0.35));
+                e.style.transform = "rotate(" + Math.round(rango(0, 360)) + "deg)" + (Math.random() < 0.5 ? " scaleX(-1)" : "");
+                capa.appendChild(e);
+                est.nebulosas.push({ el: e, k: k, a: Math.random(), b: Math.random(),
+                                     t: rango(num("--cielo-nebulosa-tam-min", 0.5), num("--cielo-nebulosa-tam-max", 1)) });
+            }
+            est.nebulosas.forEach(function (o) {
+                var visible = o.k < m;
+                o.el.style.display = visible ? "" : "none";
+                if (!visible) return;
+                var tam = o.t * lado;
+                var a = (o.k + o.a) * tramo - tam / 2;          // a lo largo: dentro de su tramo
+                var b = o.b * ancho - tam / 2;                   // a lo ancho: en cualquier sitio
+                o.el.style.width = o.el.style.height = tam + "px";
+                o.el.style.left = (movil ? b : a) + "px";
+                o.el.style.top = (movil ? a : b) + "px";
+            });
+        };
+    }
+
     document.addEventListener("DOMContentLoaded", function () {
         var contenedor = document.querySelector(".timeline-container");
         if (!contenedor) return;
 
         var wrapper = document.querySelector(".timeline-wrapper");
         if (wrapper) colocarPorFechas(wrapper);
+
+        // Cielo por piezas (estrellas + nebulosas al azar) debajo de toda la línea
+        var montarCielo = crearCielo(contenedor);
+        if (montarCielo) {
+            var pendienteCielo;
+            var recolocarCielo = function () {
+                cancelAnimationFrame(pendienteCielo);
+                pendienteCielo = requestAnimationFrame(montarCielo);
+            };
+            if ("ResizeObserver" in window) {
+                var roCielo = new ResizeObserver(recolocarCielo);
+                roCielo.observe(contenedor);
+                if (wrapper) roCielo.observe(wrapper);
+            } else window.addEventListener("resize", recolocarCielo);
+            if (MOVIL.addEventListener) MOVIL.addEventListener("change", recolocarCielo);
+            montarCielo();
+        }
 
         // El fondo (cielo estrellado de <html>) se desplaza con el contenedor, como si
         // hiciera scroll la página entera: hacia la derecha en escritorio, hacia abajo en móvil.

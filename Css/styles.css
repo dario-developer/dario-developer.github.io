@@ -20,33 +20,39 @@
        Una imagen que empalma consigo misma arriba/abajo y se repite
        hacia abajo todo lo que haga falta.
        ══════════════════════════════════════════════════════════════ */
-    --fondo-img: url("../media/img/Deco/Cielo.png");  /* ← IMAGEN */
+    --fondo-img: url("../media/img/Deco/Cielo/nubes.png");  /* ← IMAGEN */
     --fondo-tamano: 100% auto;     /* ancho alto. "100% auto" = ocupa todo el ancho sin deformarse */
     --fondo-posicion: top center;
     --fondo-respaldo: rgb(176, 178, 220);  /* color de cielo mientras carga / si falta la imagen */
 
     /* ══════════════════════════════════════════════════════════════
        2. TABLÓN · tablones de madera (por piezas)
-       Dos tiras montadas a partir de las piezas de media/img/Deco/Tablón
-       (Esquina2, Centro superior-interior, Centro de lados y Medio) con el
-       script generar-tablon.ps1 de esa misma carpeta:
-           ┌esq┬── borde de arriba ──┬esq┐   ← BORDE  (tablon-borde<N>.png)
-           │lado│  1 tablón (centro) │lado│  ← CENTRO (tablon-centro<N>.png): se REPITE hacia abajo
+       Dos tiras montadas a partir de las piezas de media/img/Deco/Tablon/piezas
+       con el script media/img/Deco/Tablon/generar-tablon.ps1 (las deja en Tablon/tiras):
+           ┌esq┬── borde de arriba ──┬esq┐   ← BORDE  (tiras/borde-N.png: una esquina + borde + OTRA esquina)
+           │lado│  1 tablón (centro) │lado│  ← CENTRO (tiras/centro-N.png: un lado + medio + OTRO lado en espejo): se REPITE hacia abajo
            └esq┴── borde de abajo ───┴esq┘   ← BORDE volteado
-       La derecha es el espejo de la izquierda. A lo ancho se estira.
+       A lo ancho se estira.
 
-       ► VARIANTES AL AZAR: hasta 3 bordes y 3 centros. Cada tablón escoge
+       ► VARIANTES AL AZAR: hasta 6 bordes y 6 centros (los que genere el script:
+         combina las piezas para que los dos extremos de cada tablón sean DISTINTOS). Cada tablón escoge
          un borde para arriba, otro para abajo y un centro para CADA tablón
          central, con un azar "natural" (todas salen por igual y nunca la
          misma dos veces seguidas). Las variantes en "none" no se usan: si
          solo hay 1, se usa siempre esa. Todas deben medir lo mismo.
        ══════════════════════════════════════════════════════════════ */
-    --tablon-img-borde-1:  url("../media/img/Deco/Tablón/tablon-borde1.png");   /* ← BORDE 1 */
-    --tablon-img-borde-2:  url("../media/img/Deco/Tablón/tablon-borde2.png");   /* ← BORDE 2 (ej: url("../media/img/Deco/Tablón/tablon-borde2.png")) */
-    --tablon-img-borde-3:  none;                                                /* ← BORDE 3 */
-    --tablon-img-centro-1: url("../media/img/Deco/Tablón/tablon-centro1.png");  /* ← CENTRO 1 */
-    --tablon-img-centro-2: url("../media/img/Deco/Tablón/tablon-centro2.png");  /* ← CENTRO 2 */
-    --tablon-img-centro-3: none;                                                /* ← CENTRO 3 */
+    --tablon-img-borde-1:  url("../media/img/Deco/Tablon/tiras/borde-1.png");    /* ← BORDE 1 */
+    --tablon-img-borde-2:  none;                                                 /* ← BORDE 2 (las esquinas actuales son todas la misma, en espejo: solo sale 1 borde) */
+    --tablon-img-borde-3:  none;
+    --tablon-img-borde-4:  none;
+    --tablon-img-borde-5:  none;
+    --tablon-img-borde-6:  none;
+    --tablon-img-centro-1: url("../media/img/Deco/Tablon/tiras/centro-1.png");   /* ← CENTRO 1 */
+    --tablon-img-centro-2: url("../media/img/Deco/Tablon/tiras/centro-2.png");   /* ← CENTRO 2 */
+    --tablon-img-centro-3: url("../media/img/Deco/Tablon/tiras/centro-3.png");   /* ← CENTRO 3 */
+    --tablon-img-centro-4: url("../media/img/Deco/Tablon/tiras/centro-4.png");   /* ← CENTRO 4 */
+    --tablon-img-centro-5: url("../media/img/Deco/Tablon/tiras/centro-5.png");   /* ← CENTRO 5 */
+    --tablon-img-centro-6: url("../media/img/Deco/Tablon/tiras/centro-6.png");   /* ← CENTRO 6 */
     --tablon-img-borde: 349;       /* ← alto en px (imagen) de la tira de borde (lo imprime el script: "slice: 349 150 690") */
     --tablon-img-lado: 150;        /* ← ancho en px (imagen) de la columna lateral */
     --tablon-img-tablon: 690;      /* ← alto en px (imagen) de la tira de centro (1 tablón) */
@@ -74,19 +80,19 @@
          transparente alrededor (si no, se ven huecos entre las piezas).
          Photoshop: Imagen > Recortar > Píxeles transparentes · GIMP: Imagen >
          Recorte automático · Krita: Imagen > Recortar a contenido.
-         Los "-recorte.png" son los originales (3000×3000) recortados SOLO a la
+         Los de "recortes/" son los originales (3000×3000) recortados SOLO a la
          franja del borde: esquina = 520×520 de abajo-izquierda, lado = franja
          de abajo de 1796×520. Así el trazo negro se ve con grosor real.
        ══════════════════════════════════════════════════════════════ */
-    --folio-img-esquina: url("../media/img/Deco/Hojas/hojaesquina1-recorte.png");  /* ← IMAGEN 1: esquina abajo-izquierda */
-    --folio-img-centro:  url("../media/img/Deco/Hojas/hojacentro.png");           /* ← IMAGEN 3: centro */
+    --folio-img-esquina: url("../media/img/Deco/Hojas/papel/recortes/esquina-1.png");  /* ← IMAGEN 1: esquina abajo-izquierda */
+    --folio-img-centro:  url("../media/img/Deco/Hojas/papel/centro.png");           /* ← IMAGEN 3: centro */
 
     /* IMAGEN 2: LADO de abajo · hasta 3 VARIANTES. Cada lado de cada hoja escoge
        una al azar ("natural": todas salen por igual y nunca la misma dos veces
        seguidas). Las que estén en "none" no se usan. Todas deben medir lo mismo. */
-    --folio-img-lado-1:  url("../media/img/Deco/Hojas/hojalado-recorte.png");     /* ← LADO 1 */
-    --folio-img-lado-2:  none;                                                    /* ← LADO 2 (ej: url("../media/img/Deco/Hojas/hojalado2-recorte.png")) */
-    --folio-img-lado-3:  none;                                                    /* ← LADO 3 */
+    --folio-img-lado-1:  url("../media/img/Deco/Hojas/papel/recortes/lado-1.png"); /* ← LADO 1 */
+    --folio-img-lado-2:  url("../media/img/Deco/Hojas/papel/recortes/lado-2.png");   /* ← LADO 2 */
+    --folio-img-lado-3:  url("../media/img/Deco/Hojas/papel/recortes/lado-3.png");   /* ← LADO 3 */
 
     /* MEDIDAS REALES de tus imágenes: los píxeles que miden los ARCHIVOS (solo el número, sin "px").
        Cámbialas solo si cambian las imágenes. */
@@ -136,11 +142,11 @@
        con las hojas de media/img/Deco/Hojas/foto. Mismas reglas (esquina
        abajo-izquierda, lado de abajo, imágenes recortadas al dibujo).
        ══════════════════════════════════════════════════════════════ */
-    --marco-img-esquina: url("../media/img/Deco/Hojas/foto/hojafotoesquina1-recorte.png");
-    --marco-img-lado-1:  url("../media/img/Deco/Hojas/foto/hojafotolado-recorte.png");  /* ← LADO 1 */
+    --marco-img-esquina: url("../media/img/Deco/Hojas/foto/recortes/esquina-1.png");
+    --marco-img-lado-1:  url("../media/img/Deco/Hojas/foto/recortes/lado-1.png");  /* ← LADO 1 */
     --marco-img-lado-2:  none;                                                          /* ← LADO 2 */
     --marco-img-lado-3:  none;                                                          /* ← LADO 3 */
-    --marco-img-centro:  url("../media/img/Deco/Hojas/foto/hojafotocentro.png");
+    --marco-img-centro:  url("../media/img/Deco/Hojas/foto/centro.png");
     --marco-esquina-tam: 440;      /* medidas reales de los archivos (solo el número) */
     --marco-lado-ancho: 1795;
     --marco-lado-alto: 440;
@@ -303,9 +309,15 @@ h1{
 .pf-tablon-borde[data-v="1"]{ --_img: var(--tablon-img-borde-1); }
 .pf-tablon-borde[data-v="2"]{ --_img: var(--tablon-img-borde-2); }
 .pf-tablon-borde[data-v="3"]{ --_img: var(--tablon-img-borde-3); }
+.pf-tablon-borde[data-v="4"]{ --_img: var(--tablon-img-borde-4); }
+.pf-tablon-borde[data-v="5"]{ --_img: var(--tablon-img-borde-5); }
+.pf-tablon-borde[data-v="6"]{ --_img: var(--tablon-img-borde-6); }
 .pf-tablon-centro[data-v="1"]{ --_img: var(--tablon-img-centro-1); }
 .pf-tablon-centro[data-v="2"]{ --_img: var(--tablon-img-centro-2); }
 .pf-tablon-centro[data-v="3"]{ --_img: var(--tablon-img-centro-3); }
+.pf-tablon-centro[data-v="4"]{ --_img: var(--tablon-img-centro-4); }
+.pf-tablon-centro[data-v="5"]{ --_img: var(--tablon-img-centro-5); }
+.pf-tablon-centro[data-v="6"]{ --_img: var(--tablon-img-centro-6); }
 
 /* Sin arte de madera: Js/script.js pone la clase pf-sin-tablon en <html>
    y el tablón se pinta de color liso (también bajo los bordes laterales). */

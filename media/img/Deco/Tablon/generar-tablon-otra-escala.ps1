@@ -1,3 +1,6 @@
+# SOLO para piezas dibujadas a OTRA ESCALA / en otro lienzo (como las de piezas/otra-escala).
+# Para las piezas normales (lienzo 3000x3000 en la posición de siempre) usa generar-tablon.ps1.
+#
 # Monta las dos tiras de una VARIANTE de tablón a partir de 3 dibujos (lienzo de cualquier tamaño,
 # fondo transparente, tablones horizontales con su línea negra):
 #   -esquina  esquina de ARRIBA-IZQUIERDA con el borde de arriba a su derecha (y al menos 1 junta debajo)
@@ -9,13 +12,11 @@
 # La derecha es el espejo de la izquierda; el borde de abajo lo voltea el CSS.
 # Las medidas (grosor del lado, alto de un tablón...) se DETECTAN solas buscando las juntas negras.
 #
-# Uso (desde la raíz del proyecto):
-#   $d = (Resolve-Path "media/img/Deco/Tablón").Path
-#   & "$d/generar-tablon.ps1" -dir $d -n 2 -esquina "Tablon-esquina2" -lado "Tablon-borde2" -medio "Tablon-centro2"
-# Luego en Css/styles.css: --tablon-img-borde-2 y --tablon-img-centro-2 apuntando a los PNG generados.
+# Uso (desde la raíz del proyecto; -dir = carpeta de los dibujos, las tiras salen ahí mismo):
+#   $d = (Resolve-Path "media/img/Deco/Tablon/piezas/otra-escala").Path
+#   & "media/img/Deco/Tablon/generar-tablon-otra-escala.ps1" -dir $d -n 4 -esquina "esquina" -lado "lado" -medio "medio"
+# Luego mueve tablon-borde4.png / tablon-centro4.png a Tablon/tiras y apúntalos desde Css/styles.css.
 # Opcional: -preview "$env:TEMP/tablon-preview.png" guarda un tablón de muestra.
-# (La variante 1 se montó con una versión anterior de este script, a partir de
-#  Esquina2 + Centro superior-interior + Centro de lados + Medio: ver historial de git.)
 param(
     [Parameter(Mandatory)][string]$dir, [Parameter(Mandatory)][string]$n,
     [Parameter(Mandatory)][string]$esquina, [Parameter(Mandatory)][string]$lado, [Parameter(Mandatory)][string]$medio,

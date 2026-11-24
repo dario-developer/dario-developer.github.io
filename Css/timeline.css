@@ -30,11 +30,63 @@
 }
 
 /* FONDO TOTAL: cielo estrellado en vez de las nubes. Usa el mismo motor que el
-   fondo de nubes (bloque html de styles.css): solo se cambian sus variables. */
+   fondo de nubes (bloque html de styles.css): solo se cambian sus variables.
+   (Es el cielo DE RESPALDO: si Js/timeline.js monta el cielo por piezas, lo tapa.) */
 :root{
-    --fondo-img: url("../media/img/Deco/Cielo%20estrellado.png");  /* ← IMAGEN */
+    --fondo-img: url("../media/img/Deco/Cielo/cielo-estrellado.png");  /* ← IMAGEN */
     --fondo-respaldo: var(--color-bg);   /* color mientras carga / si falta la imagen */
+
+    /* ══════════════════════════════════════════════════════════════
+       CIELO POR PIEZAS (al azar) · lo monta Js/timeline.js en .timeline-cielo
+         · ESTRELLAS: baldosas que cubren toda la línea, cada una con una
+           variante y una orientación al azar (azar "natural": sin rachas).
+         · NEBULOSAS: repartidas por toda la línea (siempre alguna en cada tramo,
+           para que no se amontonen), con tamaño, giro y transparencia al azar.
+       Las variantes en "none" no se usan.
+       ══════════════════════════════════════════════════════════════ */
+    --cielo-estrellas-1: url("../media/img/Deco/Cielo/estrellas-1.png");   /* ← ESTRELLAS 1 */
+    --cielo-estrellas-2: url("../media/img/Deco/Cielo/estrellas-2.png");   /* ← ESTRELLAS 2 */
+    --cielo-estrellas-3: none;                                              /* ← ESTRELLAS 3 */
+    --cielo-nebulosa-1:  url("../media/img/Deco/Cielo/nebulosa-1.png");    /* ← NEBULOSA 1 */
+    --cielo-nebulosa-2:  url("../media/img/Deco/Cielo/nebulosa-2.png");    /* ← NEBULOSA 2 */
+    --cielo-nebulosa-3:  url("../media/img/Deco/Cielo/nebulosa-3.png");    /* ← NEBULOSA 3 */
+    --cielo-nebulosa-4:  url("../media/img/Deco/Cielo/nebulosa-4.png");    /* ← NEBULOSA 4 */
+    --cielo-nebulosas-por-pantalla: 1.3;   /* ← cuántas nebulosas por cada pantalla de línea (de media) */
+    --cielo-nebulosa-tam-min: 0.5;         /* ← tamaño mínimo (fracción del lado corto de la pantalla) */
+    --cielo-nebulosa-tam-max: 1;           /* ← tamaño máximo */
+    --cielo-nebulosa-opacidad-min: 0.18;   /* ← transparencia: más bajo = más tenue */
+    --cielo-nebulosa-opacidad-max: 0.35;
 }
+
+/* Con el cielo por piezas montado, la imagen de respaldo de <html> sobra (se queda su color) */
+html.pf-cielo-piezas{
+    background-image: none;
+}
+
+/* Capa del cielo: dentro del contenedor que se desplaza, así se mueve con la línea
+   sin tener que copiar el scroll. Va DEBAJO de todo y no recibe clics. */
+.timeline-cielo{
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: -1;
+    overflow: hidden;              /* las nebulosas que se salen no agrandan el scroll */
+    pointer-events: none;
+    background-color: var(--color-bg);
+}
+.timeline-cielo > span{
+    position: absolute;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+}
+.timeline-cielo-estrellas[data-v="1"]{ background-image: var(--cielo-estrellas-1); }
+.timeline-cielo-estrellas[data-v="2"]{ background-image: var(--cielo-estrellas-2); }
+.timeline-cielo-estrellas[data-v="3"]{ background-image: var(--cielo-estrellas-3); }
+.timeline-cielo-nebulosa{ mix-blend-mode: screen; }   /* se suma a las estrellas como luz */
+.timeline-cielo-nebulosa[data-v="1"]{ background-image: var(--cielo-nebulosa-1); }
+.timeline-cielo-nebulosa[data-v="2"]{ background-image: var(--cielo-nebulosa-2); }
+.timeline-cielo-nebulosa[data-v="3"]{ background-image: var(--cielo-nebulosa-3); }
+.timeline-cielo-nebulosa[data-v="4"]{ background-image: var(--cielo-nebulosa-4); }
 
 /* Aquí no hace scroll la página sino .timeline-container, así que Js/timeline.js
    copia su scroll en --fondo-scroll-x/-y y el cielo se mueve con él.
@@ -145,6 +197,7 @@ html{
     overflow-x: auto;
     overflow-y: auto;
     width: 100%;
+    position: relative;           /* referencia de la capa del cielo (.timeline-cielo) */
 }
 
 /* ============================================================
