@@ -1171,19 +1171,23 @@ body:has(> .pf-suelo) > *{
 /* ============================================================
    IDIOMA (.pf-idiomas) · banderas arriba del tablón del index, enmarcadas en la hoja
    azul de las fotos (.pf-marco). Js/idioma.js marca la del idioma actual con .activo.
-     · MÓVIL (≤ 576px): una encima de otra, del ancho de las hojas de abajo.
-     · TABLET y ESCRITORIO: en fila, una en cada extremo (alineadas con las hojas de
-       los lados), más anchas según la pantalla (--idioma-bandera).
+     · MÓVIL (≤ 576px): en fila, una al lado de la otra (cada una, la mitad del ancho).
+     · TABLET y ESCRITORIO: arriba a la derecha del tablón, ocupando su sitio (empujan
+       las hojas hacia abajo), más anchas según la pantalla (--idioma-bandera).
    ============================================================ */
 .pf-idiomas{
-    --idioma-bandera: clamp(96px, 13vw, 170px);  /* ← ancho de cada bandera (tablet y escritorio) */
+    --idioma-bandera: clamp(48px, 6.5vw, 85px);  /* ← ancho de cada bandera (tablet y escritorio) */
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;                   /* a la derecha */
     align-items: center;
-    gap: 1rem;
-    margin-bottom: clamp(0.75rem, 2vw, 1.25rem);
+    gap: 0.75rem;
+    margin-bottom: auto;                         /* pegadas ARRIBA del tablón (el tablón centra su contenido en vertical) */
     position: relative;
-    z-index: 1;
+    z-index: 2;
+}
+.pf-idiomas + *{
+    margin-top: calc(clamp(0.75rem, 2vw, 1.25rem) - var(--bs-gutter-y, 0px));   /* espacio mínimo hasta las hojas (descuenta el margen negativo del .row de Bootstrap) */
+    margin-bottom: auto;                         /* las hojas, centradas en el hueco que queda debajo */
 }
 .pf-idioma{
     padding: 0;
@@ -1221,10 +1225,13 @@ body:has(> .pf-suelo) > *{
 }
 @media (max-width: 576px){
     .pf-idiomas{
-        flex-direction: column;
-        align-items: stretch;                    /* del ancho de las hojas */
+        justify-content: space-between;
+        gap: 1rem;
     }
-    .pf-idioma,
+    .pf-idioma{
+        flex: 1 1 0;                             /* una al lado de la otra, a medias */
+        min-width: 0;
+    }
     .pf-idioma .pf-envoltorio{
         width: 100%;
     }

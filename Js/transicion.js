@@ -147,7 +147,16 @@ var pfPagina = (function () {
         // Espacio: velocidad constante (salida) + ease-out (entrada). Como la entrada arranca a la misma
         // velocidad que la salida y frena con una cúbica, tarda 3 veces más: salida = 1/4 del total.
         var De = vertical ? total / 4 : total / 2;
-        return { tipo: tipo, t0: Date.now(), De: De, Dn: vertical ? total * 3 / 4 : total / 2,
+        // Cuánto tiene que recorrer el contenido viejo (en pantallas) para salir ENTERO de la pantalla.
+        // En vertical no basta con una pantalla: si la página es más alta (móvil, tablet) o se ha bajado,
+        // lo que queda por encima (o por debajo) de lo que se ve entraría en pantalla y "popearía" al cambiar.
+        var H = window.innerHeight, salida = 1;
+        if (vertical) {
+            var alto = Math.max(document.documentElement.scrollHeight, document.body ? document.body.scrollHeight : 0);
+            var dist = tipo === "arriba" ? H + window.scrollY : alto - window.scrollY;   // hasta el borde de arriba / abajo de la página
+            salida = Math.max(1, (dist + 40) / H);                    // (+40px: sombras y piezas que sobresalen)
+        }
+        return { tipo: tipo, t0: Date.now(), De: De, Dn: vertical ? total * 3 / 4 : total / 2, salida: salida,
                  cielo: { x: cielo.x, y: cielo.y - window.scrollY / window.innerWidth } };
     }
 
@@ -177,6 +186,8 @@ var pfPagina = (function () {
     var cambiando = false;
     var ido = false;
     var destino = null;
+
+    function salidaViejo() { return esVertical(v.tipo) ? (v.salida || 1) : 1; }
 
     // Cuánto ha avanzado la "cámara" (en pantallas) en el segundo t del viaje
     function camara(t) {
@@ -214,7 +225,8 @@ var pfPagina = (function () {
 
         // Contenido: el viejo se va (0 → 1 pantalla) · el nuevo espera fuera y llega (1 → 0)
         // (en lateral el nuevo ya está en su sitio: lo destapa el muro de nubes)
-        var fuera = nueva ? (vertical ? (entrando ? Math.pow(1 - s, 3) : 1) : 0) : Math.min(1, X);
+        // (en vertical el viejo sigue a la velocidad de la cámara hasta salir entero: v.salida pantallas)
+        var fuera = nueva ? (vertical ? (entrando ? Math.pow(1 - s, 3) : 1) : 0) : Math.min(salidaViejo(), X);
         var signo = nueva ? -1 : 1;                                     // el nuevo viene del lado contrario
         raiz.style.setProperty("--pf-t-mov", px(signo * d[0] * fuera * W, signo * d[1] * fuera * H));
 
@@ -260,7 +272,9 @@ var pfPagina = (function () {
             raiz.style.setProperty("--pf-t-capa3", px(0, e * 4) + ", " + px(40, e * 3) + ", " + px(90, e * 5));
             raiz.style.setProperty("--pf-t-estelas", (rapidez * aparecer * numero("--transicion-espacio-estelas", 0.55)).toFixed(3));
             raiz.style.setProperty("--pf-t-capa2", px(0.2 * W, -0.6 * W + d[1] * X * numero("--transicion-espacio-nubes-delante", 2.2) * H));
-            raiz.style.setProperty("--pf-t-op2", (limitar(1 - a * 2) * Math.min(1, rapidez * 1.5) * aparecer).toFixed(3));
+            // Nubes de delante: solo al SUBIR (en la bajada no salen)
+            var op2 = v.tipo === "abajo" ? 0 : limitar(1 - a * 2) * Math.min(1, rapidez * 1.5) * aparecer;
+            raiz.style.setProperty("--pf-t-op2", op2.toFixed(3));
         }
         return { t: t, s: s, X: X };
     }
@@ -324,7 +338,7 @@ var pfPagina = (function () {
             var espera = segundos("--transicion-espera-max", 2);
             if (te === null && arrancada && e.t >= v.De && (listo || e.t >= v.De + espera)) te = e.t;
             if (te !== null && e.s >= 1) { terminar(e.X); return; }
-        } else if (e.t >= v.De) {                                       // el contenido viejo ya no se ve
+        } else if (e.t >= v.De && e.X >= salidaViejo()) {               // el contenido viejo ya no se ve (entero)
             if (modo === "interno") {
                 if (preparada && !cambiando) cambiar();
                 else if (!preparada && e.t >= v.De + 8) recargar();       // no llega: cambio de página normal
