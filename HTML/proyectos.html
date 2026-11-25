@@ -11,6 +11,8 @@
         <!-- Mi css -->
         <link rel="stylesheet" href="../Css/decoracion-generada.css">  <!-- medidas de las piezas (lo genera media/img/Deco/generar-decoracion.ps1) -->
         <link rel="stylesheet" href="../Css/styles.css">
+        <!-- Transición entre páginas (va en el head para que no parpadee) -->
+        <script src="../Js/transicion.js"></script>
     </head>
 
     <body>
@@ -19,7 +21,7 @@
         </a>
 
         <!-- CARTEL de cabecera: pequeño y centrado (.pf-cartel, variables --cartel-* del css) -->
-        <header class="pf-cartel pf-cartel-pagina" data-palos="0.2 0.8" data-palos-hasta=".pf-proyecto-tablon">  <!-- palos del cartel: bajan hasta el primer tablón que encuentren debajo -->
+        <header class="pf-cartel pf-cartel-pagina pf-cartel-proyectos" data-palos="0.2 0.8" data-palos-hasta=".pf-proyecto-tablon">  <!-- palos del cartel: bajan hasta el primer tablón que encuentren debajo -->
             <h1>Proyectos</h1>
         </header>
 

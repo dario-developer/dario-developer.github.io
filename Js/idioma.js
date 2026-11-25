@@ -164,48 +164,55 @@ var PF_TRADUCCIONES = {
         return idioma;
     };
 
-    document.addEventListener("DOMContentLoaded", function () {
-        document.addEventListener("click", function (e) {
-            var b = e.target.closest && e.target.closest("[data-idioma]");
-            if (!b) return;
-            e.preventDefault();
-            var nuevo = b.dataset.idioma;
-            if (nuevo === idioma || cambiando) return;     // ya está en ese idioma (o a mitad de un cambio): nada
-            // Fundido: los textos se desvanecen, se traducen y vuelven a aparecer
-            var raiz = document.documentElement;
-            var ms = parseFloat(getComputedStyle(raiz).getPropertyValue("--idioma-fade")) * 1000;
-            if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || !(ms > 0)) { window.pfIdioma(nuevo); return; }
-            // Solo se funden los elementos cuyo texto VA A CAMBIAR (ej. el nombre, que es igual
-            // en los dos idiomas, se queda quieto)
-            var dic = nuevo === "en" ? aIngles : aEspanol;
-            var cambian = [];
-            var w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-            while (w.nextNode()) {
-                var n = w.currentNode, el = n.parentNode;
-                if (!el || ignorar[el.nodeName]) continue;
-                var t = traducir(n.nodeValue, dic);
-                if (t !== null && normalizar(t) !== normalizar(n.nodeValue) && cambian.indexOf(el) < 0) cambian.push(el);
-            }
-            cambiando = true;
-            cambian.forEach(function (el) { el.classList.add("pf-idioma-cambia"); });
-            raiz.classList.add("pf-idioma-fundido", "pf-idioma-saliendo");
+    // Clic en las banderas (una sola vez para toda la web: escucha en document, que no cambia)
+    document.addEventListener("click", function (e) {
+        var b = e.target.closest && e.target.closest("[data-idioma]");
+        if (!b) return;
+        e.preventDefault();
+        var nuevo = b.dataset.idioma;
+        if (nuevo === idioma || cambiando) return;     // ya está en ese idioma (o a mitad de un cambio): nada
+        // Fundido: los textos se desvanecen, se traducen y vuelven a aparecer
+        var raiz = document.documentElement;
+        var ms = parseFloat(getComputedStyle(raiz).getPropertyValue("--idioma-fade")) * 1000;
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || !(ms > 0)) { window.pfIdioma(nuevo); return; }
+        // Solo se funden los elementos cuyo texto VA A CAMBIAR (ej. el nombre, que es igual
+        // en los dos idiomas, se queda quieto)
+        var dic = nuevo === "en" ? aIngles : aEspanol;
+        var cambian = [];
+        var w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+        while (w.nextNode()) {
+            var n = w.currentNode, el = n.parentNode;
+            if (!el || ignorar[el.nodeName]) continue;
+            var t = traducir(n.nodeValue, dic);
+            if (t !== null && normalizar(t) !== normalizar(n.nodeValue) && cambian.indexOf(el) < 0) cambian.push(el);
+        }
+        cambiando = true;
+        cambian.forEach(function (el) { el.classList.add("pf-idioma-cambia"); });
+        raiz.classList.add("pf-idioma-fundido", "pf-idioma-saliendo");
+        setTimeout(function () {
+            window.pfIdioma(nuevo);
+            raiz.classList.remove("pf-idioma-saliendo");
             setTimeout(function () {
-                window.pfIdioma(nuevo);
-                raiz.classList.remove("pf-idioma-saliendo");
-                setTimeout(function () {
-                    raiz.classList.remove("pf-idioma-fundido");
-                    cambian.forEach(function (el) { el.classList.remove("pf-idioma-cambia"); });
-                    cambiando = false;
-                }, ms);
+                raiz.classList.remove("pf-idioma-fundido");
+                cambian.forEach(function (el) { el.classList.remove("pf-idioma-cambia"); });
+                cambiando = false;
             }, ms);
-        });
+        }, ms);
+    });
+
+    // En CADA página (pfPagina: la web cambia de sección sin recargar, ver Js/transicion.js)
+    var iniciar = function () {
         aplicarTodo();
         // Lo que se añada o cambie después (otros scripts) también se traduce
         var pendiente = false;
-        new MutationObserver(function () {
+        var obs = new MutationObserver(function () {
             if (pendiente || idioma === "es") return;
             pendiente = true;
             requestAnimationFrame(function () { pendiente = false; aplicar(document.body); });
-        }).observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ATRIBUTOS.concat(["data-nombre"]) });
-    });
+        });
+        obs.observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ATRIBUTOS.concat(["data-nombre"]) });
+        if (window.pfPagina) window.pfPagina.observar(obs);           // se desconecta al cambiar de página
+    };
+    if (window.pfPagina) window.pfPagina.alIniciar(iniciar);
+    else document.addEventListener("DOMContentLoaded", iniciar);
 })();

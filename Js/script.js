@@ -1,4 +1,21 @@
 /* ============================================================
+   pfPagina · ciclo de vida de cada página (lo define Js/transicion.js, en el <head>).
+   La web no recarga al cambiar de sección: lo que antes se hacía en DOMContentLoaded
+   va en pfPagina.alIniciar, y lo que se engancha a window/document, por pfPagina.escuchar
+   (así se quita al irse). Si una página no carga transicion.js, esto hace lo de siempre.
+   ============================================================ */
+var pfPagina = window.pfPagina || {
+    alIniciar: function (fn) { document.addEventListener("DOMContentLoaded", fn); },
+    alCargar: function (fn) { if (document.readyState === "complete") fn(); else window.addEventListener("load", fn); },
+    escuchar: function (objeto, evento, fn, opciones) {
+        if (objeto.addEventListener) objeto.addEventListener(evento, fn, opciones);
+        else if (objeto.addListener) objeto.addListener(fn);
+    },
+    observar: function (obs) { return obs; },
+    alSalir: function () {}
+};
+
+/* ============================================================
    Azar "natural" · para escoger variantes de arte (lados de hojas, tablones, cielo...)
    El azar puro hace rachas (la misma 4 veces seguidas) y a la gente no le parece
    aleatorio. Esto funciona como una bolsa: se barajan todas las variantes, se
@@ -78,7 +95,7 @@ function pfFolioIniciar(raiz) {
     });
 }
 
-document.addEventListener("DOMContentLoaded", function () { pfFolioIniciar(); pfCartelIniciar(); });
+pfPagina.alIniciar(function () { pfFolioIniciar(); pfCartelIniciar(); });
 
 /* ============================================================
    CARTEL CON TABLONES · cada .pf-cartel (menos el de la línea de tiempo) pasa a ser
@@ -173,9 +190,10 @@ function pfPalosIniciar() {
     }
 
     function colocar() {
-        var cuerpo = document.body.getBoundingClientRect();
-        var estilo = getComputedStyle(document.body);
-        var ox = cuerpo.left + parseFloat(estilo.borderLeftWidth), oy = cuerpo.top + parseFloat(estilo.borderTopWidth);
+        // Origen = la propia capa de palos (esquina del body). Se mide la capa y no el body porque,
+        // durante la transición entre páginas, la capa se desplaza igual que lo que sujetan los palos.
+        var origen = capa.getBoundingClientRect();
+        var ox = origen.left, oy = origen.top;
         var asoma = parseFloat(getComputedStyle(raizCss).getPropertyValue("--palo-asoma")) || 22;
         var ancho = parseFloat(getComputedStyle(palos[0].el).width) || 20;
 
@@ -194,13 +212,17 @@ function pfPalosIniciar() {
     var pendiente;
     function programar() { cancelAnimationFrame(pendiente); pendiente = requestAnimationFrame(colocar); }
     colocar();
-    window.addEventListener("resize", programar);
-    window.addEventListener("load", programar);
+    pfPagina.escuchar(window, "resize", programar);
+    pfPagina.alCargar(programar);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(programar);
-    if ("ResizeObserver" in window) new ResizeObserver(programar).observe(document.body);
+    if ("ResizeObserver" in window) {   // cualquier cambio de tamaño de la página, de lo que sujetan o de lo que hay debajo
+        var ro = pfPagina.observar(new ResizeObserver(programar));
+        ro.observe(document.body);
+        document.querySelectorAll("[data-palos], header, main, .pf-board, .pf-suelo").forEach(function (el) { ro.observe(el); });
+    }
 }
 
-document.addEventListener("DOMContentLoaded", function () { setTimeout(pfPalosIniciar, 0); });   // después de montar carteles y tablones
+pfPagina.alIniciar(function () { setTimeout(pfPalosIniciar, 0); });   // después de montar carteles y tablones
 
 /* ============================================================
    Desplazamiento SUAVE con la rueda del ratón (en toda la web)
@@ -359,9 +381,11 @@ function pfTablonComprobar() {
     });
 }
 
-document.addEventListener("DOMContentLoaded", function () {
+pfPagina.alIniciar(function () {
     pfTablonIniciar();
     pfTablonComprobar();
+    // Al cambiar de página, deja de vigilar los tablones viejos (se reutiliza para los nuevos)
+    if (pfTablonObservador) pfPagina.alSalir(function () { pfTablonObservador.disconnect(); });
 });
 
 /* ============================================================
@@ -481,28 +505,28 @@ function pfIgualarAltos() {
     });
 }
 
-(function () {
+pfPagina.alIniciar(function () {
+    if (!document.querySelector(".pf-igualar-alto")) return;
     var pendiente;
     function programar() { cancelAnimationFrame(pendiente); pendiente = requestAnimationFrame(pfIgualarAltos); }
-    window.addEventListener("load", programar);
-    window.addEventListener("resize", programar);
-    document.addEventListener("DOMContentLoaded", function () {
-        document.querySelectorAll(".pf-igualar-alto img").forEach(function (img) {
-            img.addEventListener("load", programar);
-        });
-        if ("ResizeObserver" in window) {   // si cambia el alto del texto vecino (fuentes, etc.)
-            var ro = new ResizeObserver(programar);
-            document.querySelectorAll(".pf-igualar-alto").forEach(function (col) {
-                var v = col.previousElementSibling || col.nextElementSibling;
-                if (v) ro.observe(v);
-            });
-        }
+    pfPagina.alCargar(programar);
+    pfPagina.escuchar(window, "resize", programar);
+    document.querySelectorAll(".pf-igualar-alto img").forEach(function (img) {
+        img.addEventListener("load", programar);
     });
-})();
+    if ("ResizeObserver" in window) {   // si cambia el alto del texto vecino (fuentes, etc.)
+        var ro = pfPagina.observar(new ResizeObserver(programar));
+        document.querySelectorAll(".pf-igualar-alto").forEach(function (col) {
+            var v = col.previousElementSibling || col.nextElementSibling;
+            if (v) ro.observe(v);
+        });
+    }
+    programar();
+});
 
 /* Cartel sin arte · si --cartel-img-esquina es "none", añade "pf-sin-cartel" a <html>
    (el CSS hace que el marrón de respaldo ocupe toda la caja del cartel). */
-document.addEventListener("DOMContentLoaded", function () {
+pfPagina.alIniciar(function () {
     var esquina = getComputedStyle(document.documentElement).getPropertyValue("--cartel-img-esquina").trim();
     if (!esquina || esquina === "none") document.documentElement.classList.add("pf-sin-cartel");
 });
@@ -524,13 +548,34 @@ function pfProyectosIniciar() {
     }
 
     if ("ResizeObserver" in window) {
-        var observador = new ResizeObserver(medir);
+        var observador = pfPagina.observar(new ResizeObserver(medir));
         tablones.forEach(function (t) { observador.observe(t); });
     } else {
-        window.addEventListener("resize", medir);
-        window.addEventListener("load", medir);
+        pfPagina.escuchar(window, "resize", medir);
+        pfPagina.alCargar(medir);
     }
     medir();
 }
 
-document.addEventListener("DOMContentLoaded", pfProyectosIniciar);
+pfPagina.alIniciar(pfProyectosIniciar);
+
+/* ============================================================
+   Carruseles de Bootstrap con data-bs-ride="carousel" · Bootstrap los pone en marcha al
+   cargar la ventana, cosa que no pasa al cambiar de sección por dentro: se hace aquí.
+   Al irse, se paran (si no, seguirían girando aunque ya no estén en la página).
+   ============================================================ */
+pfPagina.alIniciar(function () {
+    var carruseles = document.querySelectorAll('[data-bs-ride="carousel"]');
+    if (!carruseles.length) return;
+    pfPagina.alCargar(function () {
+        if (!window.bootstrap || !window.bootstrap.Carousel) return;
+        carruseles.forEach(function (c) { window.bootstrap.Carousel.getOrCreateInstance(c); });
+    });
+    pfPagina.alSalir(function () {
+        if (!window.bootstrap || !window.bootstrap.Carousel) return;
+        carruseles.forEach(function (c) {
+            var instancia = window.bootstrap.Carousel.getInstance(c);
+            if (instancia) instancia.dispose();
+        });
+    });
+});

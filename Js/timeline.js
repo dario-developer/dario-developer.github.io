@@ -192,11 +192,10 @@
         // Reajusta el tamaño de los textos si cambia el ancho de pantalla o termina de cargar la fuente
         var pendiente;
         function reajustar() { cancelAnimationFrame(pendiente); pendiente = requestAnimationFrame(function () { ajustarTextos(wrapper); }); }
-        window.addEventListener("resize", reajustar);
+        pfPagina.escuchar(window, "resize", reajustar);
         if (document.fonts && document.fonts.ready) document.fonts.ready.then(reajustar);
 
-        if (MOVIL.addEventListener) MOVIL.addEventListener("change", function () { repartirEventos(wrapper); });
-        else if (MOVIL.addListener) MOVIL.addListener(function () { repartirEventos(wrapper); });
+        pfPagina.escuchar(MOVIL, "change", function () { repartirEventos(wrapper); });
 
         // Regla de meses (muescas): arriba en escritorio, a la izquierda en móvil
         var vieja = wrapper.querySelector(":scope > .timeline-regla");
@@ -259,6 +258,7 @@
         capa.setAttribute("aria-hidden", "true");
         contenedor.insertBefore(capa, contenedor.firstChild);
         raiz.classList.add("pf-cielo-piezas");                              // apaga la imagen de respaldo de <html>
+        pfPagina.alSalir(function () { raiz.classList.remove("pf-cielo-piezas"); });   // (al volver a las nubes)
 
         var est = { eje: null, baldosas: [], nebulosas: [] };
 
@@ -320,7 +320,10 @@
         };
     }
 
-    document.addEventListener("DOMContentLoaded", function () {
+    // En cada página (pfPagina: la web cambia de sección sin recargar, ver Js/transicion.js).
+    // Todo lo que se engancha a window o a MOVIL va por pfPagina.escuchar: se quita al irse.
+    var pfPagina = window.pfPagina;
+    pfPagina.alIniciar(function () {
         var contenedor = document.querySelector(".timeline-container");
         if (!contenedor) return;
 
@@ -336,11 +339,11 @@
                 pendienteCielo = requestAnimationFrame(montarCielo);
             };
             if ("ResizeObserver" in window) {
-                var roCielo = new ResizeObserver(recolocarCielo);
+                var roCielo = pfPagina.observar(new ResizeObserver(recolocarCielo));
                 roCielo.observe(contenedor);
                 if (wrapper) roCielo.observe(wrapper);
-            } else window.addEventListener("resize", recolocarCielo);
-            if (MOVIL.addEventListener) MOVIL.addEventListener("change", recolocarCielo);
+            } else pfPagina.escuchar(window, "resize", recolocarCielo);
+            pfPagina.escuchar(MOVIL, "change", recolocarCielo);
             montarCielo();
         }
 
@@ -353,6 +356,10 @@
         }
         contenedor.addEventListener("scroll", moverFondo, { passive: true });
         moverFondo();
+        pfPagina.alSalir(function () {
+            raiz.style.removeProperty("--fondo-scroll-x");
+            raiz.style.removeProperty("--fondo-scroll-y");
+        });
 
         /* ---- Textos que ACOMPAÑAN al desplazarte ----
            El texto de cada línea se mantiene en el CENTRO de la pantalla mientras se recorre
@@ -407,7 +414,7 @@
             pendienteScroll = requestAnimationFrame(function () { acompanarTextos(); avisarOtraCara(); });
         }
         contenedor.addEventListener("scroll", alDesplazar, { passive: true });
-        window.addEventListener("resize", alDesplazar);
+        pfPagina.escuchar(window, "resize", alDesplazar);
         if (document.fonts && document.fonts.ready) document.fonts.ready.then(alDesplazar);
 
         // ---- Móvil: 2 caras (líneas paralelas) que se voltean con el botón ----
@@ -465,18 +472,16 @@
                 alDesplazar();
             });
 
-            if (MOVIL.addEventListener) MOVIL.addEventListener("change", actualizar);
-            else if (MOVIL.addListener) MOVIL.addListener(actualizar);   // Safari antiguo
+            pfPagina.escuchar(MOVIL, "change", actualizar);
             actualizar();
         }
 
         // Al pasar de escritorio a móvil (o al revés) se reparten los eventos de nuevo y cambia el eje
-        if (MOVIL.addEventListener) MOVIL.addEventListener("change", reiniciarTextos);
-        else if (MOVIL.addListener) MOVIL.addListener(reiniciarTextos);
+        pfPagina.escuchar(MOVIL, "change", reiniciarTextos);
         reiniciarTextos();
         avisarOtraCara();
 
-        window.addEventListener("wheel", function (e) {
+        pfPagina.escuchar(window, "wheel", function (e) {
             if (MOVIL.matches || e.ctrlKey) return;                 // móvil o zoom: comportamiento normal
             if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;    // trackpad ya en horizontal: lo deja tal cual
 

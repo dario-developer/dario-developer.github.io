@@ -17,12 +17,13 @@
 
     /* ══════════════════════════════════════════════════════════════
        1. FONDO TOTAL · nubes
-       Una imagen que empalma consigo misma arriba/abajo y se repite
-       hacia abajo todo lo que haga falta.
+       Una imagen que empalma consigo misma por los 4 lados y se repite
+       todo lo que haga falta. Es nubes.png + su espejo al lado (la monta
+       media/img/Deco/generar-decoracion.ps1 en Cielo/tiras): así, cuando el
+       cielo se desplaza a los lados en la transición entre páginas, no hay corte.
        ══════════════════════════════════════════════════════════════ */
-    --fondo-img: url("../media/img/Deco/Cielo/nubes.png");  /* ← IMAGEN */
-    --fondo-tamano: 100% auto;     /* ancho alto. "100% auto" = ocupa todo el ancho sin deformarse */
-    --fondo-posicion: top center;
+    --fondo-img: url("../media/img/Deco/Cielo/tiras/nubes.png");  /* ← IMAGEN (nubes + su espejo) */
+    --fondo-tamano: 200vw auto;    /* ancho alto. "200vw" = cada mitad (nubes / espejo) mide una pantalla */
     --fondo-respaldo: rgb(176, 178, 220);  /* color de cielo mientras carga / si falta la imagen */
 
     /* ══════════════════════════════════════════════════════════════
@@ -221,8 +222,12 @@ html{
     background-color: var(--fondo-respaldo);
     background-image: var(--fondo-img);
     background-size: var(--fondo-tamano);
-    background-position: var(--fondo-posicion);
-    background-repeat: repeat-y;
+    background-repeat: repeat;
+    /* Posición = donde lo dejó la última transición entre páginas (--pf-cielo-x/-y, en anchos de
+       pantalla). Lo pone Js/transicion.js; sin él, arriba a la izquierda. */
+    background-position:
+        calc(var(--pf-cielo-x, 0) * 100vw)
+        calc(var(--pf-cielo-y, 0) * 100vw);
 }
 
 /* Bootstrap pinta el <body> de blanco (--bs-body-bg) y tapaba las nubes */
@@ -1238,4 +1243,174 @@ body:has(> .pf-suelo) > *{
 }
 .pf-idioma-saliendo .pf-idioma-cambia{
     opacity: 0;
+}
+
+/* ============================================================
+   PROYECTOS · cartel del título lo bastante LARGO para que sus palos caigan bien
+   dentro de los tablones de los lados (si no, en pantallas anchas el palo quedaba
+   justo en el borde del tablón y asomaba por fuera).
+   Palos al 20% y 80% del cartel (centrado): su posición es 50% ± 0.3 × ancho, y
+   tienen que quedar --proyecto-palo-dentro dentro del tablón (que mide --proyecto-ancho):
+       ancho ≥ (50vw − ancho del tablón + margen) / 0.3
+   Solo en escritorio (≥ 993px): en tablet y móvil los tablones ya pasan del centro.
+   ============================================================ */
+@media (min-width: 993px){
+    .pf-cartel-proyectos{
+        --proyecto-palo-dentro: 3rem;        /* ← cuánto entra cada palo dentro del tablón */
+        min-width: calc((50vw - var(--proyecto-ancho) + var(--proyecto-palo-dentro)) / 0.3);
+    }
+}
+
+/* ============================================================
+   TRANSICIONES ENTRE PÁGINAS (las mueve Js/transicion.js)
+   · LATERAL (carteles en general): un MURO DE NUBES entra por un lado mientras el contenido
+     se va, tapa toda la pantalla, detrás se cambia de sección y, cuando la nueva ha cargado
+     entera (imágenes, decoración y fondo), se retira por el otro lado: ya estás en la sección.
+     Al ir hacia dentro entra por la DERECHA y se retira por la IZQUIERDA; al volver, al revés.
+   · ESPACIO (línea de tiempo, data-transicion="arriba" / "abajo"): viaje vertical de las
+     nubes a las estrellas. Ease-out sin ease-in: arranca a toda velocidad y frena al
+     llegar. El cielo se oscurece poco a poco y se funde con las estrellas desde arriba.
+   Las capas se pintan con pseudo-elementos (html::before/::after, body::before/::after)
+   que solo existen durante la transición. JS pone su posición en las variables --pf-t-*.
+   ============================================================ */
+:root{
+    /* ← VELOCIDAD de cada efecto (menos = más rápido; sin contar lo que se espera a que cargue):
+         lateral = lo que tarda el muro en tapar + lo que tarda en retirarse (mitad y mitad) */
+    --transicion-lateral-duracion: 1.4s;
+    --transicion-espacio-duracion: 4.4s;
+    --transicion-espera-max: 2s;            /* ← lo más que se espera a que cargue la página nueva */
+    --transicion-barras-fundido: 0.8s;      /* ← fundido con el que aparecen las barras de desplazamiento al llegar */
+
+    /* Muro de nubes (lateral) */
+    --transicion-muro-img: url("../media/img/Deco/Cielo/tiras/muro-nubes.png");
+    --transicion-muro-color: rgb(233, 234, 247);   /* color de dentro de las nubes (tapa mientras se pinta la imagen) */
+    --transicion-muro-nucleo: 0.56;         /* parte opaca del ancho de la imagen (la del script que la genera) */
+
+    /* Parallax: velocidad de cada capa respecto al contenido (0 = quieta, 1 = igual, >1 = más rápida) */
+    --transicion-espacio-estrellas: 0.15;
+    --transicion-espacio-cielo: 0.6;
+    --transicion-espacio-nubes-delante: 2.2;
+    --transicion-espacio-estelas: 0.55;     /* ← intensidad de las estelas de velocidad (0 = sin estelas) */
+    --transicion-espacio-degradado: 1.6;    /* ← alto (en pantallas) del paso de cielo a estrellas: más = más suave */
+    --transicion-espacio-degradado-panel: 1; /* ← alto (en pantallas) del degradado que cuelga bajo la línea de tiempo al llegar */
+    --transicion-espacio-panel-color: rgb(2, 11, 41);   /* ← su color: el de la zona de abajo de las estrellas */
+
+    /* Imágenes y colores (van aparte porque la línea de tiempo cambia --fondo-img y --fondo-respaldo) */
+    --transicion-cielo-img: url("../media/img/Deco/Cielo/tiras/nubes.png");
+    --transicion-nubes-img: url("../media/img/Deco/Cielo/tiras/nubes-sueltas.png");   /* nubes que se cruzan al subir */
+    --transicion-cielo-respaldo: rgb(193, 198, 236);
+    --transicion-estrellas-img: url("../media/img/Deco/Cielo/estrellas-1.png");
+    --transicion-espacio-color: rgb(2, 11, 41);
+}
+
+/* CONTENIDO · se mueve cada hijo directo del <body> por separado: si se moviera el <body>,
+   los elementos fijos (botón de volver...) dejarían de estar fijos y darían un salto */
+.pf-transicion body{
+    pointer-events: none;                    /* no se puede pulsar nada mientras dura */
+}
+.pf-transicion body > *{
+    translate: var(--pf-t-mov, 0 0);
+}
+/* Al moverse, cada hijo apila sus capas por su cuenta: que sigan por delante de los palos.
+   (:where = sin peso: los que ya tienen su z-index, como el suelo o el botón, lo conservan) */
+:where(.pf-transicion body > :not(.pf-palos)){
+    z-index: 1;
+}
+
+/* BARRAS DE DESPLAZAMIENTO · invisibles mientras dura el viaje (aparecen al llegar).
+   Se vuelven transparentes en vez de quitarse: así ocupan lo mismo y nada se mueve al aparecer. */
+@supports not selector(::-webkit-scrollbar){        /* Firefox (en Chrome, scrollbar-color anularía la barra espacial y cambiaría su grosor) */
+    html.pf-transicion,
+    html.pf-transicion *{
+        scrollbar-color: transparent transparent;
+    }
+}
+html.pf-transicion *::-webkit-scrollbar-track,
+html.pf-transicion *::-webkit-scrollbar-thumb,
+html.pf-transicion *::-webkit-scrollbar-corner{
+    background: none;
+    box-shadow: none;
+}
+
+/* CAPAS · html::before/::after van DETRÁS del contenido; body::before/::after, DELANTE */
+.pf-transicion::before,
+.pf-transicion::after,
+.pf-transicion body::before,
+.pf-transicion body::after{
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-repeat: repeat;
+}
+.pf-transicion::before,
+.pf-transicion::after{ z-index: -1; }
+.pf-transicion body::before,
+.pf-transicion body::after{ z-index: 90; }
+
+/* --- LATERAL: MURO DE NUBES ---
+   Un muro de nubes (Cielo/tiras/muro-nubes.png: borde esponjoso | núcleo opaco | borde
+   esponjoso) entra por un lado hasta tapar toda la pantalla; detrás se cambia de sección y,
+   cuando la nueva ha cargado entera (fondo incluido), se retira por el otro lado.
+   El núcleo mide justo una pantalla; los bordes quedan fuera mientras tapa.
+   Se mueve con transform (lo hace la tarjeta gráfica: sin repintar, sin tirones).
+   Va en html::after: no es del <body>, así que no se rehace al cambiar de sección. */
+.pf-transicion.pf-lateral::after{
+    inset: auto;
+    top: 0;
+    left: 0;
+    width: var(--pf-t-muro-ancho, 180vw);
+    height: 100vh;
+    z-index: 1000;                                  /* por delante de todo, también del botón de volver */
+    background-image:
+        var(--transicion-muro-img),
+        linear-gradient(var(--transicion-muro-color), var(--transicion-muro-color));   /* (tapa aunque la imagen aún no se haya pintado) */
+    background-size: 100% auto, var(--pf-t-muro-nucleo, 100vw) 100%;
+    background-position: 0 0, var(--pf-t-muro-borde, 40vw) 0;
+    background-repeat: repeat-y, no-repeat;
+    transform: translate3d(var(--pf-t-muro, 100vw), 0, 0);
+    will-change: transform;
+}
+
+/* --- ESPACIO --- */
+html.pf-transicion.pf-vertical.pf-vertical{        /* fondo: las estrellas */
+    background-color: var(--transicion-espacio-color);
+    background-image: var(--transicion-estrellas-img);
+    background-size: auto 150vh;
+    background-repeat: repeat;
+    background-position: var(--pf-t-fondo);
+}
+.pf-vertical::before{                               /* el cielo de nubes, que se oscurece y se desvanece desde arriba */
+    background-image:
+        linear-gradient(var(--pf-t-tinte, transparent), var(--pf-t-tinte, transparent)),
+        var(--transicion-cielo-img);
+    background-size: 100% 100%, 200vw auto;
+    background-repeat: no-repeat, repeat;
+    background-position: 0 0, var(--pf-t-capa1);
+    background-color: var(--transicion-cielo-respaldo);
+    -webkit-mask-image: linear-gradient(to bottom, transparent var(--pf-t-mascara-0, -100%), black var(--pf-t-mascara-1, 0%));
+            mask-image: linear-gradient(to bottom, transparent var(--pf-t-mascara-0, -100%), black var(--pf-t-mascara-1, 0%));
+}
+.pf-vertical::after{                                /* degradado que cuelga del borde de abajo de la línea de tiempo */
+    background-image: linear-gradient(to bottom,
+        var(--transicion-espacio-panel-color) 0,
+        var(--transicion-espacio-panel-color) var(--pf-t-panel-borde, 0px),
+        transparent calc(var(--pf-t-panel-borde, 0px) + var(--transicion-espacio-degradado-panel) * 100vh));
+    background-repeat: no-repeat;
+    opacity: var(--pf-t-panel-alfa, 0);
+}
+.pf-vertical body::before{                          /* estelas de velocidad */
+    --_estela: rgb(255 255 255 / var(--pf-t-estelas, 0));
+    background-image:
+        radial-gradient(1.5px 9vh at 50% 50%, var(--_estela), transparent),
+        radial-gradient(2px 14vh at 30% 20%, var(--_estela), transparent),
+        radial-gradient(1.5px 6vh at 70% 80%, var(--_estela), transparent);
+    background-size: 137px 53vh, 211px 71vh, 89px 37vh;
+    background-position: var(--pf-t-capa3);
+}
+.pf-vertical body::after{                           /* nubes grandes que se cruzan al subir (o al bajar) */
+    background-image: var(--transicion-nubes-img);
+    background-size: 260vw auto;
+    background-position: var(--pf-t-capa2);
+    opacity: var(--pf-t-op2, 0);
 }

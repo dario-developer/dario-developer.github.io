@@ -11,6 +11,8 @@
         <!-- Mi css -->
         <link rel="stylesheet" href="Css/decoracion-generada.css">  <!-- medidas de las piezas (lo genera media/img/Deco/generar-decoracion.ps1) -->
         <link rel="stylesheet" href="Css/styles.css">
+        <!-- Transición entre páginas (va en el head para que no parpadee) -->
+        <script src="Js/transicion.js"></script>
     </head>
     <body class="container h-md-100">
         <!-- CARTEL de cabecera con nombre, logo, etc.
@@ -58,7 +60,7 @@
 
                 <!-- FOLIO 3 -->
                 <div class="col-12 col-sm-6 col-lg-3">
-                    <a class="pf-card pf-folio" href="HTML/lineatiempo.html">
+                    <a class="pf-card pf-folio" href="HTML/lineatiempo.html" data-transicion="arriba">  <!-- viaje a las estrellas (Js/transicion.js) -->
                         <img class="img-fluid" src="https://picsum.photos/400" alt="Imagen línea de tiempo">
                         <p class="pf-card-text">Linea de tiempo</p>
                     </a>
